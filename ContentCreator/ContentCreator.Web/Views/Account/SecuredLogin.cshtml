@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewData["Title"] = "SecuredLogin";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="left">
+    <div class="form-box">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary" style="color: black;">Login </h2>
+        </div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="email" class="form-label">Username or Email</label>
+                <input type="text" class="form-control" id="UserNameOrEmail" value="SuperAdmin" placeholder="Enter email or username">
+            </div>
+            <div class="mb-3 password-wrapper">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control pe-5" id="password" value="Pass@123" placeholder="Enter password">
+                <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+            </div>
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Don't have an account?</span>
+                <a href="/account/signup" class="text-primary text-decoration-none">Sign up</a>
+            </div>
+        </form>
+    </div>
+</div>

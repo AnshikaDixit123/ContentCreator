@@ -1,0 +1,57 @@
+﻿
+@{
+    ViewData["Title"] = "SignUp";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="left">
+    <!-- Make this container scrollable -->
+    <div class="form-scroll-container">
+        <div class="form-box">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary">Sign Up</h2>
+            </div>
+
+            <form>
+                <div class="mb-3">
+                    <label for="UserId" class="form-label">User Name</label>
+                    <input type="text" class="form-control" id="userName" placeholder="Enter your UserName">
+                </div>
+                <div class="mb-3">
+                    <label for="firstname" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" placeholder="Enter your first name">
+                </div>
+                <div class="mb-3">
+                    <label for="lastname" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" placeholder="Enter your last name">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="emailAddress" placeholder="Enter email">
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number">
+                </div>
+                <div class="mb-3 password-wrapper">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control pe-5" id="password" placeholder="Create password">
+                    <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+                </div>
+                <div class="mb-3 password-wrapper">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control pe-5" id="confirmPassword" placeholder="Confirm password">
+                    <i class="bi bi-eye toggle-password" id="toggleConfirmPassword"></i>
+                </div>
+                <div class="d-grid mb-3">
+                    <button type="button" class="btn btn-primary" id="SignUp">Sign Up</button>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Already have an account?</span>
+                    <a href="/account/login" class="text-primary text-decoration-none">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
