@@ -21,6 +21,8 @@ namespace ContentCreator.Api
 
             builder.Services.AddScoped<IAccountService, AccountService>();
 
+            builder.Services.AddScoped<IGeneralService, GeneralService>();
+
 
 
             // Register IAppDbContext
@@ -35,8 +37,7 @@ namespace ContentCreator.Api
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredLength = 8;
             })
-            .AddEntityFrameworkStores<ContentCreatorDBContext>()
-            .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<ContentCreatorDBContext>().AddDefaultTokenProviders();
 
             // Add services to the container.
 

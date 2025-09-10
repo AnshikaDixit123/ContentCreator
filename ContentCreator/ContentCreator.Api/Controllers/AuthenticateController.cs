@@ -1,6 +1,7 @@
 ﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
+using ContentCreator.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace ContentCreator.Api.Controllers
         [HttpPost("AuthenticateAdmin")]
         public async Task<IActionResult> AuthenticateAdmin([FromForm] SigningRequest request, CancellationToken cancellation)
         {
-            var response = new ResponseData();
+            var response = new ResponseData<bool>();
             try
             {
                 response = await _accountService.AuthenticateAdminAsync(request, cancellation);
@@ -27,6 +28,21 @@ namespace ContentCreator.Api.Controllers
             {
                 response.Message = ex.Message;
                 response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("SignUp")]
+        public async Task<IActionResult> SignUp([FromForm] SignUpRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _accountService.SignUpAsync(request, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.StatusCode = 500;
+                response.Message = "Something went wrong";
             }
             return StatusCode(response.StatusCode, response);
         }

@@ -5,6 +5,7 @@ namespace ContentCreator.Application.Interfaces
 {
     public interface IAccountService
     {
-        Task<ResponseData> AuthenticateAdminAsync(SigningRequest request, CancellationToken cancellation);
+        Task<ResponseData<bool>> AuthenticateAdminAsync(SigningRequest request, CancellationToken cancellation);
+        Task<ResponseData<bool>> SignUpAsync(SignUpRequest request, CancellationToken cancellation);
     }
 }
