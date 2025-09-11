@@ -116,7 +116,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, Roles.User.ToString()); // assign default role
-                response.StatusCode = 201;
+                response.StatusCode = 200;
                 response.Message = "User registered successfully";
                 response.Result = true;
                 response.IsSuccess = true;

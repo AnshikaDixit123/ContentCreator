@@ -20,7 +20,7 @@ namespace ContentCreator.Api.Controllers
         }
 
         [HttpGet("GetUserList")]
-        public async Task<IActionResult> GetUserList(CancellationToken cancellation)
+        public async Task<IActionResult> GetUserList(bool? IncludeSuperAdmin, CancellationToken cancellation)
         {
             var response = new ResponseData<List<UserDetailsResponse>>();
             try
@@ -35,12 +35,12 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetRoleList")]
-        public async Task<IActionResult> GetRoleList(CancellationToken cancellation)
+        public async Task<IActionResult> GetRoleList(bool? IncludeSuperAdmin, CancellationToken cancellation)
         {
             var response = new ResponseData<List<RolesResponseModel>>();
             try
             {
-                response = await _generalService.GetRoleListAsync(cancellation);
+                response = await _generalService.GetRoleListAsync(IncludeSuperAdmin, cancellation);
             }
             catch (Exception ex)
             {

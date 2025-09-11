@@ -1,6 +1,7 @@
 ﻿using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
 using ContentCreator.Domain.Entities.Identity;
+using ContentCreator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 
@@ -47,8 +48,9 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             }
             return response;
         }
-        public async Task<ResponseData<List<RolesResponseModel>>> GetRoleListAsync(CancellationToken cancellation)
+        public async Task<ResponseData<List<RolesResponseModel>>> GetRoleListAsync(bool? IncludeSuperAdmin, CancellationToken cancellation)
         {
+            bool includeSuperAdmin = IncludeSuperAdmin ?? false;
             var response = new ResponseData<List<RolesResponseModel>>();
             response.Message = "Something went wrong";
             List<RolesResponseModel> roleList = new List<RolesResponseModel>();
@@ -58,6 +60,9 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             {
                 foreach (var role in getRole)
                 {
+                    if (!includeSuperAdmin && role.Name == Roles.SuperAdmin.ToString())
+                        continue;
+
                     var roleResponse = new RolesResponseModel();
                     
                     roleResponse.Id = role.Id;

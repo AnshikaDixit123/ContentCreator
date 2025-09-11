@@ -4,16 +4,15 @@
     function GetRoleList() {
         $('#RoleName').html(``)
         $.ajax({
-            url: "https://localhost:7134/" + "api/General/CreateUser",
+            url: "https://localhost:7134/" + "api/General/GetRoleList",
             type: "GET",
             success: function (response) {
-                console.log(response)
                 if (response.StatusCode == 200) {
                     var recordRoleType = response.Result.length;
                     $('#RoleName').append(`<option value="">Select Role</option>`);
                     for (var i = 0; i < recordRoleType; i++) {
                         var data = response.Result[i];
-                        var optionHtml = `<option value="${data.Id}">${data.RoleType}</option>`;
+                        var optionHtml = `<option value="${data.Id}">${data.RoleName}</option>`;
                         $('#RoleName').append(optionHtml);
                     }
                 }
