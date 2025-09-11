@@ -1,1 +1,25 @@
-﻿
+﻿$(document).ready(function () {
+    $("#loginForm").submit(function (event) {
+        event.preventDefault();
+        var UserNameOrEmail = $("#UserNameOrEmail").val();
+        var password = $("#password").val();
+
+        var formData = new FormData();
+        formData.append('UserNameOrEmail', UserNameOrEmail);
+        formData.append('password', password);
+        $.ajax({
+            url: "https://localhost:7134/" + "api/Authenticate/AuthenticateAdmin",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response)
+                location.href = "/home/allusers"
+            },
+            error: function (error) {
+                Swal.fire('Error', 'Something went wrong!', 'error');
+            }
+        });
+    });
+});

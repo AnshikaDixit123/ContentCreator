@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewData["Title"] = "AllUsers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    th {
+        background-color: #f8f9fa;
+    }
+
+    .userStatus {
+        cursor: pointer;
+    }
+</style>
+<div class="container my-5">
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-4">All Users</h4>
+        <div class="table-responsive">
+            <div>
+                <label for="RoleFilter">Filter by Role:</label>
+                <select id="RoleName"></select>
+            </div>
+            <div class="search-wrap" id="SearchText">
+                <label for="txtSearch" class="sr-only">Search</label>
+                <input type="search" id="txtSearch" placeholder="Search users..." />
+            </div>
+            <table class="table table-bordered align-middle" id="tblUserList">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Profile</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tblUserListBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="~/js/allusers.js"></script>

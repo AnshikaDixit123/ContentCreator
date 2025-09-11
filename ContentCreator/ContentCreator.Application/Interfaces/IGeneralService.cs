@@ -7,5 +7,6 @@ namespace ContentCreator.Application.Interfaces
     public interface IGeneralService
     {
         Task<ResponseData<List<UserDetailsResponse>>> GetUserListAsync(CancellationToken cancellation);
+        Task<ResponseData<List<RolesResponseModel>>> GetRoleListAsync(CancellationToken cancellation);
     }
 }

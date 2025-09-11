@@ -4,7 +4,9 @@ using ContentCreator.Infrastructure.Persistence.Contexts;
 using ContentCreator.Infrastructure.Persistence.Repositories;
 using ContentCreator.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ContentCreator.Api
 {
@@ -13,15 +15,37 @@ namespace ContentCreator.Api
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost",
+                    policy =>
+                    {
+                        policy.WithOrigins("https://localhost:7024") // your frontend URL
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
+            #region Configure Controllers and JSON Options for response naming
 
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            });
+
+            #endregion Configure Controllers and JSON Options for response naming
             // Database Connection
             builder.Services.AddDbContext<ContentCreatorDBContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<IDbConnection>(sp =>
+                new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<IAccountService, AccountService>();
 
             builder.Services.AddScoped<IGeneralService, GeneralService>();
+
+            builder.Services.AddScoped<IHomeService, HomeService>();
 
 
 
@@ -47,6 +71,9 @@ namespace ContentCreator.Api
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+            //use cores
+            app.UseCors("AllowLocalhost");
+
 
             // Apply seed data
             using (var scope = app.Services.CreateScope())

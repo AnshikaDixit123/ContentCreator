@@ -28,7 +28,7 @@ namespace ContentCreator.Web
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Account}/{action=EndUserLogin}/{id?}");
+                pattern: "{controller=Account}/{action=SecuredLogin}/{id?}");
 
             app.Run();
         }

@@ -1,0 +1,56 @@
+﻿
+@{
+    ViewData["Title"] = "Roles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-4">Roles</h4>
+        <div class="container mt-4">
+            <div class="card p-4 shadow-sm">
+                <div class="mb-3">
+                    <label for="roleDropdown" class="form-label fw-bold">Role name</label>
+                    <div class="d-flex gap-3 align-items-center">
+                        <input type="text" id="roleInput" class="form-control w-auto" placeholder="Enter role name">
+
+                        <!-- Radio buttons -->
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="activeRadio" value="Active" checked>
+                            <label class="form-check-label" for="activeRadio">Active</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="inactiveRadio" value="Inactive">
+                            <label class="form-check-label" for="inactiveRadio">Inactive</label>
+                        </div>
+
+                        <!-- Create user button -->
+                        <button class="btn btn-success" id="btnCreate">Create Roles</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table section -->
+            <div class="card p-3 mt-4 shadow-sm">
+                <table id="roleTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>Role Name</th>
+                            <th> Number of Users</th>
+                            <th>Role Description</th>
+                            <th>Role Type</th>
+                            <th>IsProtected</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblRolesListBody">
+                        <!-- Rows will be filled dynamically (DataTable / API) -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/roles.js"></script>
+
+

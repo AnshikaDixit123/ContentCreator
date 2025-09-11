@@ -1,1 +1,25 @@
-﻿
+﻿$(document).ready(function () {
+    $("#loginForm").submit(function (event) {
+        event.preventDefault();
+        var UserNameOrEmail = $("#UserNameOrEmail").val();
+        var password = $("#password").val();
+
+        var formData = new FormData();
+        formData.append('UserNameOrEmail', UserNameOrEmail);
+        formData.append('password', password);
+        $.ajax({
+            url: "https://localhost:7134/" + "api/Authenticate/AuthenticateEndUser",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log(response)
+                Swal.fire('success', 'success!', 'success');
+            },
+            error: function (error) {
+                Swal.fire('Error', 'Something went wrong!', 'error');
+            }
+        });
+    });
+});

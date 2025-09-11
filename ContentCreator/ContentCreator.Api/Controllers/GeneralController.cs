@@ -34,5 +34,20 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
+        [HttpGet("GetRoleList")]
+        public async Task<IActionResult> GetRoleList(CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<RolesResponseModel>>();
+            try
+            {
+                response = await _generalService.GetRoleListAsync(cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
