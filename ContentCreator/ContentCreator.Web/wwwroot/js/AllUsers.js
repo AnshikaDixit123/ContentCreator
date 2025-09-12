@@ -1,4 +1,5 @@
 ﻿$(document).ready(function () {
+    const jwtToken = localStorage.getItem('UserToken');
 
     GetUserList()
     function GetUserList() {

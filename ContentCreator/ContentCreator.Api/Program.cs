@@ -1,12 +1,17 @@
+using ContentCreator.Api.Middlewares;
 using ContentCreator.Application.Interfaces;
 using ContentCreator.Domain.Entities.Identity;
 using ContentCreator.Infrastructure.Persistence.Contexts;
 using ContentCreator.Infrastructure.Persistence.Repositories;
 using ContentCreator.Infrastructure.Persistence.Seed;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Data;
+using System.Text;
 
 namespace ContentCreator.Api
 {
@@ -15,26 +20,77 @@ namespace ContentCreator.Api
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            // Add CORS
+
+            #region CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowLocalhost",
-                    policy =>
-                    {
-                        policy.WithOrigins("https://localhost:7024") // your frontend URL
-                              .AllowAnyHeader()
-                              .AllowAnyMethod();
-                    });
+                options.AddPolicy("AllowLocalhost", policy =>
+                {
+                    policy.WithOrigins("https://localhost:7024", "https://localhost:7134")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
             });
-            #region Configure Controllers and JSON Options for response naming
+            #endregion
 
+            #region Controllers + JSON
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = null;
             });
+            #endregion
 
-            #endregion Configure Controllers and JSON Options for response naming
-            // Database Connection
+            #region JWT Authentication
+            var jwtSettings = builder.Configuration.GetSection("Jwt");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings["Issuer"],
+                        ValidAudience = jwtSettings["Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                    };
+                });
+            #endregion
+
+            #region Swagger
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Enter JWT token with Bearer prefix",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
+            #endregion
+
+            #region Database + Services
             builder.Services.AddDbContext<ContentCreatorDBContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -42,17 +98,17 @@ namespace ContentCreator.Api
                 new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<IAccountService, AccountService>();
-
             builder.Services.AddScoped<IGeneralService, GeneralService>();
-
             builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<ITokenRevocationConfig, TokenRevocationConfig>();
 
+            builder.Services.AddDistributedMemoryCache();
 
+            builder.Services.AddScoped<IContentCreatorDBContext>(provider =>
+                provider.GetRequiredService<ContentCreatorDBContext>());
+            #endregion
 
-            // Register IAppDbContext
-            builder.Services.AddScoped<IContentCreatorDBContext>(provider => provider.GetRequiredService<ContentCreatorDBContext>());
-
-            // Identity Configuration
+            #region Identity
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -61,21 +117,13 @@ namespace ContentCreator.Api
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredLength = 8;
             })
-            .AddEntityFrameworkStores<ContentCreatorDBContext>().AddDefaultTokenProviders();
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            .AddEntityFrameworkStores<ContentCreatorDBContext>()
+            .AddDefaultTokenProviders();
+            #endregion
 
             var app = builder.Build();
-            //use cores
-            app.UseCors("AllowLocalhost");
 
-
-            // Apply seed data
+            #region Seed Data
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -89,8 +137,9 @@ namespace ContentCreator.Api
                     logger.LogError(ex, "An error occurred while seeding users and roles.");
                 }
             }
+            #endregion
 
-            // Configure the HTTP request pipeline.
+            #region Middleware Pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -99,10 +148,16 @@ namespace ContentCreator.Api
 
             app.UseHttpsRedirection();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseRouting();
+
+            app.UseCors("AllowLocalhost");
+
+            app.UseAuthentication();         // 1. Authenticate JWT
+            app.UseJwtTokenValidation();     // 2. Check revoked tokens
+            app.UseAuthorization();          // 3. Enforce [Authorize]
 
             app.MapControllers();
+            #endregion
 
             app.Run();
         }

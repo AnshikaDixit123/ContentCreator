@@ -6,7 +6,13 @@ using ContentCreator.Domain.Entities.Identity;
 using ContentCreator.Domain.Enums;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ContentCreator.Infrastructure.Persistence.Repositories
 {
@@ -16,18 +22,20 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         private readonly IDbConnection _dbConnection;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        public AccountService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, IDbConnection dbConnection, RoleManager<ApplicationRole> roleManager)
+        private readonly IConfiguration _configuration;
+        public AccountService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, IDbConnection dbConnection, RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
             _dbConnection = dbConnection;
             _roleManager = roleManager;
+            _configuration = configuration;
         }
-        public async Task<ResponseData<bool>> AuthenticateLoginAsync(SigningRequest request, string RoleType, CancellationToken cancellation)
+        public async Task<ResponseData<LoginResponseModel>> AuthenticateLoginAsync(SigningRequest request, string RoleType, CancellationToken cancellation)
         {
-            var response = new ResponseData<bool>();
+            var response = new ResponseData<LoginResponseModel>();
             response.Message = "Invalid username or email address";
-            response.Result = false;
+            response.Result = new LoginResponseModel();
             var user = new ApplicationUser();
 
             user = await _userManager.FindByNameAsync(request.UserNameOrEmail);
@@ -50,10 +58,19 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                         var result = await _userManager.CheckPasswordAsync(user, request.Password);
                         if (result)
                         {
+                            string tokenString = await GenerateToken(user, roleNames);
+                            var loginResponse = new LoginResponseModel();
+                            loginResponse.UserName = user.UserName;
+                            loginResponse.UserEmail = user.Email;
+                            loginResponse.UserId = user.Id;
+                            loginResponse.UserRole = role.Name;
+                            loginResponse.RoleType = role.RoleType;
+                            loginResponse.UserPhoneNumber = user.PhoneNumber;
+                            loginResponse.UserToken = tokenString;
                             response.Message = "Login sucessfully";
                             response.StatusCode = 200;
                             response.IsSuccess = true;
-                            response.Result = true;
+                            response.Result = loginResponse;
                         }
                     }
                 }
@@ -123,5 +140,27 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             }           
             return response;
         }
+        #region generate jwt token string
+        private async Task<string> GenerateToken(ApplicationUser user, IList<string> roles)
+        {
+            var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            }.Union(roleClaims);
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
+                claims,
+                expires: DateTime.Now.AddYears(1),
+                signingCredentials: credentials);
+            string returnToken = new JwtSecurityTokenHandler().WriteToken(token);
+            return returnToken;
+        } 
+        #endregion
     }
 }

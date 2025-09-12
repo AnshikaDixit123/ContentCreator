@@ -1,9 +1,7 @@
 ﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
-using ContentCreator.Domain.Entities.Identity;
 using ContentCreator.Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContentCreator.Api.Controllers
@@ -20,7 +18,7 @@ namespace ContentCreator.Api.Controllers
         [HttpPost("AuthenticateAdmin")]
         public async Task<IActionResult> AuthenticateAdmin([FromForm] SigningRequest request, CancellationToken cancellation)
         {
-            var response = new ResponseData<bool>();
+            var response = new ResponseData<LoginResponseModel>();
             try
             {
                 response = await _accountService.AuthenticateLoginAsync(request, RoleType.Admin.ToString(), cancellation);
@@ -35,7 +33,7 @@ namespace ContentCreator.Api.Controllers
         [HttpPost("AuthenticateContentCreator")]
         public async Task<IActionResult> AuthenticateContentCreator([FromForm] SigningRequest request, CancellationToken cancellation)
         {
-            var response = new ResponseData<bool>();
+            var response = new ResponseData<LoginResponseModel>();
             try
             {
                 response = await _accountService.AuthenticateLoginAsync(request, RoleType.ContentCreator.ToString(), cancellation);
@@ -50,7 +48,7 @@ namespace ContentCreator.Api.Controllers
         [HttpPost("AuthenticateEndUser")]
         public async Task<IActionResult> AuthenticateEndUser([FromForm] SigningRequest request, CancellationToken cancellation)
         {
-            var response = new ResponseData<bool>();
+            var response = new ResponseData<LoginResponseModel>();
             try
             {
                 response = await _accountService.AuthenticateLoginAsync(request, RoleType.EndUser.ToString(), cancellation);

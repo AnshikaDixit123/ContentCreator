@@ -1,13 +1,11 @@
-﻿using Azure.Core;
-using ContentCreator.Application.Common.DTOs.ResponseDTOs;
+﻿using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
-using ContentCreator.Domain.Entities.Identity;
-using ContentCreator.Infrastructure.Persistence.Repositories;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContentCreator.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class GeneralController : ControllerBase
@@ -18,7 +16,6 @@ namespace ContentCreator.Api.Controllers
         {
             _generalService = generalService;
         }
-
         [HttpGet("GetUserList")]
         public async Task<IActionResult> GetUserList(bool? IncludeSuperAdmin, CancellationToken cancellation)
         {

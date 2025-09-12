@@ -1,10 +1,6 @@
 ﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
-using ContentCreator.Domain.Entities.Identity;
-using ContentCreator.Domain.Enums;
-using ContentCreator.Infrastructure.Persistence.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContentCreator.Api.Controllers
