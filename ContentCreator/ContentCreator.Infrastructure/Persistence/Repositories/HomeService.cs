@@ -15,11 +15,13 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         private readonly IContentCreatorDBContext _context;
         private readonly IDbConnection _dbConnection;
         private readonly UserManager<ApplicationUser> _userManager;
-        public HomeService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, IDbConnection dbConnection)
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        public HomeService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, IDbConnection dbConnection, RoleManager<ApplicationRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _dbConnection = dbConnection;
+            _roleManager = roleManager;
         }
         public async Task<ResponseData<bool>> CreateUserAsync(CreateNewUserRequest request, CancellationToken cancellation)
         {
@@ -74,7 +76,8 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, Roles.User.ToString()); // assign default role
+                var role = await _roleManager.FindByIdAsync(request.RoleID.ToString());
+                await _userManager.AddToRoleAsync(user, role.Name); // assign default role
                 response.StatusCode = 200;
                 response.Message = "User registered successfully";
                 response.Result = true;
