@@ -29,5 +29,37 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
+        [HttpPost("CreateRoles")]
+        public async Task<IActionResult> CreateRoles([FromForm] CreateRolesRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("GetMyProfile")]
+        public async Task<IActionResult> GetMyProfile([FromForm] GetMyProfileRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

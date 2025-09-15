@@ -34,6 +34,14 @@ namespace ContentCreator.Web.Controllers
         {
             return View();
         }
+        public IActionResult MyProfile()
+        {
+            return View();
+        }
+        public IActionResult UploadContent()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewData["Title"] = "UploadContent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h4 class="mb-4">Upload Content</h4>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 10%;">S.No</th>
+                <th style="width: 40%;">Content Type</th>
+                <th style="width: 50%;">Upload</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Image</td>
+                <td>
+                    <i class="fa-solid fa-image fa-xl text-primary upload-icon" data-target="imageInput" style="cursor:pointer;"></i>
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;" />
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Video</td>
+                <td>
+                    <i class="fa-solid fa-video fa-xl text-danger upload-icon" data-target="videoInput" style="cursor:pointer;"></i>
+                    <input type="file" id="videoInput" accept="video/*" style="display:none;" />
+                </td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Document</td>
+                <td>
+                    <i class="fa-solid fa-file-alt fa-xl text-success upload-icon" data-target="docInput" style="cursor:pointer;"></i>
+                    <input type="file" id="docInput" accept=".pdf,.doc,.docx,.txt" style="display:none;" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.querySelectorAll(".upload-icon").forEach(icon => {
+        icon.addEventListener("click", function () {
+            let inputId = this.getAttribute("data-target");
+            document.getElementById(inputId).click();
+        });
+    });
+
+    // Optional: preview file name after upload
+    document.querySelectorAll("input[type='file']").forEach(input => {
+        input.addEventListener("change", function () {
+            if (this.files.length > 0) {
+                alert("Selected file: " + this.files[0].name);
+            }
+        });
+    });
+</script>
+

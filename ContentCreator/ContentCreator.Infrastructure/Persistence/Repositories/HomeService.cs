@@ -86,5 +86,21 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
+        public async Task<ResponseData<bool>> CreateRolesAsync(CreateRolesRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+
+
+
+            return response;
+        }
+        public async Task<ResponseData<bool>> GetMyProfileAsync(GetMyProfileRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+
+
+
+            return response;
+        }
     }
 }

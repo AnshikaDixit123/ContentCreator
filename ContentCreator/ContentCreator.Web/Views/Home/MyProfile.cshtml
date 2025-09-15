@@ -1,0 +1,130 @@
+﻿
+@{
+    ViewData["Title"] = "MyProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .profile-pic-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .edit-icon-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+        .edit-icon-btn i {
+            font-size: 14px;
+        }
+</style>
+<div class="container my-5">
+    <div class="row g-4">
+        
+        <!-- Left Section -->
+        <div class="col-lg-4 col-md-5">
+            <div class="card text-center shadow-sm p-4 h-100">
+                <div class="profile-pic-container">
+                    <img id="profileImage" src=""
+                         class="rounded-circle mx-auto mb-3"
+                         alt="Profile Picture" width="120" height="120">
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;" />
+                    <div class="edit-icon-btn ShowForUser" id="edit-profile">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <h5 class="fw-bold mt-2" id="ProfileName">John Doe</h5>
+
+                <div class="mt-4 text-start">
+                    <label class="form-label fw-semibold ShowForUser >Password</label>
+                    <input type="password" id="password" class="form-control mb-3 block-spacebar ShowForUser d-none" placeholder="Enter current password">
+                    <label class="form-label fw-semibold">New Password</label>
+                    <input type="password" id="newPassword" class="form-control mb-3 block-spacebar" placeholder="Enter new password">
+                    <label class="form-label fw-semibold">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control mb-3 block-spacebar" placeholder="Confirm new password">
+                    <button class="btn btn-primary w-100 mt-2" id="changePassword">Change Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="col-lg-8 col-md-7">
+            <div class="card shadow-sm p-4 h-100">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">User Id</label>
+                        <input type="text" class="form-control" id="UserName" readonly placeholder="username">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email Address</label>
+                        <input type="email" class="form-control" id="EmailAddress" placeholder="email@example.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">First Name</label>
+                        <input type="text" class="form-control" id="FirstName" placeholder="First name">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Last Name</label>
+                        <input type="text" class="form-control" id="LastName" placeholder="Last name">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Phone No</label>
+                        <input type="text" class="form-control" id="PhoneNo" placeholder="+91 99999 99999">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Gender" class="form-label fw-semibold">Gender</label>
+                        <select class="form-control" id="Gender">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Country</label>
+                        <input type="text" class="form-control" id="Country" placeholder="Country">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">State</label>
+                        <input type="text" class="form-control" id="State" placeholder="State">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">City</label>
+                        <input type="text" class="form-control" id="City" placeholder="City">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Pin Code</label>
+                        <input type="text" class="form-control" id="PinCode" placeholder="Pin code">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Complete Address</label>
+                        <textarea class="form-control" id="CompleteAddress" placeholder="Complete address"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button id="saveChanges" class="btn btn-primary">Save Changes</button>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <a href="@Url.Action("UploadContent", "Home")" class="btn btn-primary">Upload Content</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+<script src="~/js/myprofile.js"></script>
+
+
+

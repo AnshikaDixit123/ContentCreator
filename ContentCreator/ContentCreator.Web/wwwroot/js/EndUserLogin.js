@@ -15,7 +15,7 @@
             processData: false,
             success: function (response) {
                 console.log(response)
-                Swal.fire('success', 'success!', 'success');
+                location.href = "/home/myprofile";
             },
             error: function (error) {
                 Swal.fire('Error', 'Something went wrong!', 'error');
