@@ -9,6 +9,9 @@ namespace ContentCreator.Infrastructure.Persistence.Contexts
     {
         public ContentCreatorDBContext(DbContextOptions<ContentCreatorDBContext> options) : base(options) { }
 
+        public DbSet<Country> Country { get; set; }
+        public DbSet<State> State { get; set; }
+        public DbSet<City> City { get; set; }
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => base.SaveChangesAsync(cancellationToken);
 

@@ -2,6 +2,7 @@
 using ContentCreator.Domain.Entities.Identity;
 using ContentCreator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ContentCreator.Infrastructure.Persistence.Seed
@@ -12,7 +13,7 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            //var dbContext = serviceProvider.GetRequiredService<IContentCreatorDBContext>();
+            var _context = serviceProvider.GetRequiredService<IContentCreatorDBContext>();
 
             // Super Admin
 
@@ -36,7 +37,7 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
             if (!await roleManager.RoleExistsAsync(Roles.Programmer.ToString()))
             {
-                var role = new ApplicationRole { Name = Roles.Programmer.ToString(), RoleDescription = "Role for Programmer"};
+                var role = new ApplicationRole { Name = Roles.Programmer.ToString(), RoleDescription = "Role for Programmer" };
 
                 await roleManager.CreateAsync(role);
             }
@@ -53,7 +54,6 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
             //Videographer
 
-
             if (!await roleManager.RoleExistsAsync(Roles.Videographer.ToString()))
             {
                 var role = new ApplicationRole { Name = Roles.Videographer.ToString(), RoleDescription = "Role for Videographer" };
@@ -62,7 +62,6 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
             }
 
             //Singer
-
 
             if (!await roleManager.RoleExistsAsync(Roles.Singer.ToString()))
             {
@@ -219,6 +218,55 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 {
                     await userManager.AddToRoleAsync(singer, Roles.Singer.ToString());
                 }
+            }
+            var getCountry = await _context.Country.FirstOrDefaultAsync();
+
+            if (getCountry == null)
+            {
+                var country = new Country
+                {
+                    CountryName = "India",
+
+                    CountryCode = "IND",
+
+                    PhoneCode = "+91"
+                };
+                await _context.Country.AddAsync(country);
+                await _context.SaveChangesAsync();
+
+                var state1 = new State
+                {
+                    StateName = "Uttar Pradesh",
+
+                    StateCode = "UP",
+
+                    CountryId = country.Id
+                };
+
+                var state2 = new State
+                {
+                    StateName = "Uttrakhand",
+
+                    StateCode = "UK",
+
+                    CountryId = country.Id
+                };
+                await _context.State.AddRangeAsync(state1, state2);
+                await _context.SaveChangesAsync();
+
+                var cities = new List<City>
+                {
+                    new City { CityName = "Lucknow", StateId = state1.Id, CountryId = country.Id },
+
+                    new City { CityName = "Noida",  StateId = state1.Id, CountryId = country.Id },
+
+                    new City { CityName = "Dehradun", StateId = state2.Id, CountryId = country.Id },
+
+                    new City { CityName = "Nainital", StateId = state2.Id, CountryId = country.Id }
+                };
+
+                await _context.City.AddRangeAsync(cities);
+                await _context.SaveChangesAsync();
             }
         }
     }

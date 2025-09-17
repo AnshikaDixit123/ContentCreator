@@ -7,6 +7,9 @@ namespace ContentCreator.Application.Interfaces
     {
         DbSet<ApplicationUser> Users { get; }
         DbSet<ApplicationRole> Roles { get; }
+        DbSet<Country> Country { get; }
+        DbSet<State> State { get; }
+        DbSet<City> City { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

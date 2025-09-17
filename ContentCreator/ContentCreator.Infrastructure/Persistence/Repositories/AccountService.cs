@@ -1,7 +1,4 @@
-﻿
-
-
-using ContentCreator.Application.Common.DTOs;
+﻿using ContentCreator.Application.Common.DTOs;
 using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;

@@ -1,0 +1,14 @@
+﻿namespace ContentCreator.Application.Common.DTOs.ResponseDTOs
+{
+    public class CountryStateCityNestedResponseModel
+    {
+        public Guid CountryId { get; set; }
+        public string CountryName { get; set; }
+        public List<StateCityNestedResponseModel> StateList { get; set; } = new List<StateCityNestedResponseModel>();
+    }
+    public class StateCityNestedResponseModel
+    {
+        public Guid StateId { get; set; }
+        public string StateName { get; set; }
+    }
+}
