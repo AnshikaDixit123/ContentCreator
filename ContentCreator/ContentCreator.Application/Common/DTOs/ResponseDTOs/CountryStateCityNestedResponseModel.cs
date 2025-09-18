@@ -10,5 +10,11 @@
     {
         public Guid StateId { get; set; }
         public string StateName { get; set; }
+        public List<CityNestedResponseModel> CityList { get; set; } = new List<CityNestedResponseModel>();
+    }
+    public class CityNestedResponseModel
+    {
+        public Guid CityId { get; set; }
+        public string CityName { get; set; }
     }
 }

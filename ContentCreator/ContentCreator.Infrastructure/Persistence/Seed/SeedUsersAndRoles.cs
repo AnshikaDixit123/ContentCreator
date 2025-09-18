@@ -186,7 +186,6 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 };
 
                 var userPassword = "Pass@123";
-
                 var chkUser = await userManager.CreateAsync(videographer, userPassword);
 
                 if (chkUser.Succeeded)
@@ -211,7 +210,6 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 };
 
                 var userPassword = "Pass@123";
-
                 var chkUser = await userManager.CreateAsync(singer, userPassword);
 
                 if (chkUser.Succeeded)
@@ -226,9 +224,7 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 var country = new Country
                 {
                     CountryName = "India",
-
                     CountryCode = "IND",
-
                     PhoneCode = "+91"
                 };
                 await _context.Country.AddAsync(country);
@@ -237,18 +233,14 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 var state1 = new State
                 {
                     StateName = "Uttar Pradesh",
-
                     StateCode = "UP",
-
                     CountryId = country.Id
                 };
 
                 var state2 = new State
                 {
                     StateName = "Uttrakhand",
-
                     StateCode = "UK",
-
                     CountryId = country.Id
                 };
                 await _context.State.AddRangeAsync(state1, state2);
@@ -257,11 +249,8 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 var cities = new List<City>
                 {
                     new City { CityName = "Lucknow", StateId = state1.Id, CountryId = country.Id },
-
                     new City { CityName = "Noida",  StateId = state1.Id, CountryId = country.Id },
-
                     new City { CityName = "Dehradun", StateId = state2.Id, CountryId = country.Id },
-
                     new City { CityName = "Nainital", StateId = state2.Id, CountryId = country.Id }
                 };
 

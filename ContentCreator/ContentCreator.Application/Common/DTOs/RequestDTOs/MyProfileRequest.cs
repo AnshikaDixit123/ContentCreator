@@ -2,6 +2,6 @@
 {
     public class GetMyProfileRequest
     {
-
+        public string UserName { get; set; }
     }
 }

@@ -36,7 +36,7 @@ namespace ContentCreator.Api.Controllers
             var response = new ResponseData<bool>();
             try
             {
-
+              
             }
             catch (Exception ex)
             {
@@ -46,13 +46,13 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
-        [HttpPost("GetMyProfile")]
-        public async Task<IActionResult> GetMyProfile([FromForm] GetMyProfileRequest request, CancellationToken cancellation)
+        [HttpGet("GetMyProfile")]
+        public async Task<IActionResult> GetMyProfile(GetMyProfileRequest request, CancellationToken cancellation)
         {
-            var response = new ResponseData<bool>();
+            var response = new ResponseData<UserResponseModel>();
             try
             {
-                
+                response = await _homeService.GetMyProfileAsync(request, cancellation);
             }
             catch (Exception ex)
             {
@@ -79,12 +79,12 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetState")]
-        public async Task<IActionResult> GetState(CancellationToken cancellation)
+        public async Task<IActionResult> GetState(Guid CountryId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<StateResponseModel>>();
             try
             {
-                response = await _homeService.GetStateAsync(cancellation);
+                response = await _homeService.GetStateAsync(CountryId, cancellation);
             }
             catch (Exception ex)
             {
@@ -95,12 +95,12 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetCity")]
-        public async Task<IActionResult> GetCity(CancellationToken cancellation)
+        public async Task<IActionResult> GetCity(Guid StateId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<CityResponseModel>>();
             try
             {
-                response = await _homeService.GetCityAsync(cancellation);
+                response = await _homeService.GetCityAsync(StateId, cancellation);
 
             }
             catch (Exception ex)

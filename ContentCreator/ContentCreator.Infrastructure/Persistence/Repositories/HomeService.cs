@@ -84,7 +84,6 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Result = true;
                 response.IsSuccess = true;
             }
-
             return response;
         }
         public async Task<ResponseData<bool>> CreateRolesAsync(CreateRolesRequest request, CancellationToken cancellation)
@@ -95,13 +94,28 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
-        public async Task<ResponseData<bool>> GetMyProfileAsync(GetMyProfileRequest request, CancellationToken cancellation)
+        public async Task<ResponseData<UserResponseModel>> GetMyProfileAsync(GetMyProfileRequest request, CancellationToken cancellation)
         {
-            var response = new ResponseData<bool>();
+            var response = new ResponseData<UserResponseModel>();
+            response.Message = "User doesn't exist";
+            var userDetail = await _userManager.FindByNameAsync(request.UserName);
 
+            if (userDetail != null)
+            {
+                var userResponse = new UserResponseModel();
+                userResponse.UserId = userDetail.Id;
+                userResponse.UserName = userDetail.UserName ?? string.Empty;
+                userResponse.FirstName = userDetail.FirstName;
+                userResponse.LastName = userDetail.LastName;
+                userResponse.EmailAddress = userDetail.Email ?? string.Empty;
+                userResponse.PhoneNumber = userDetail.PhoneNumber ?? string.Empty;
 
-
-            return response;
+                response.StatusCode = 200;
+                response.Message = "success";
+                response.Result = userResponse;
+                response.IsSuccess = true;
+            }
+                return response;
         }
 
         public async Task<ResponseData<List<CountryResponseModel>>> GetCountryAsync(CancellationToken cancellation)
@@ -112,7 +126,6 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             countryList = await _context.Country.Select(x => new CountryResponseModel {Id =  x.Id, CountryName = x.CountryName}).ToListAsync();
             if (countryList.Any())
             {
-               
                 response.StatusCode = 200;
                 response.Message = "success";
                 response.Result = countryList;
@@ -121,7 +134,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             return response;
         }
 
-        public async Task<ResponseData<List<StateResponseModel>>> GetStateAsync(CancellationToken cancellation)
+        public async Task<ResponseData<List<StateResponseModel>>> GetStateAsync(Guid CountryId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<StateResponseModel>>();
             response.Message = "Something went wrong";
@@ -134,17 +147,16 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Message = "success";
                 response.IsSuccess = true;
             }
-
             response.Result = stateList;
             return response;
         }
 
-        public async Task<ResponseData<List<CityResponseModel>>> GetCityAsync(CancellationToken cancellation)
+        public async Task<ResponseData<List<CityResponseModel>>> GetCityAsync(Guid StateId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<CityResponseModel>>();
             response.Message = "Something went wrong";
             List<CityResponseModel> cityList = new List<CityResponseModel>();
-            cityList = await _context.City.Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
+            cityList = await _context.City.Where(x => x.StateId == StateId).Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
             if (cityList.Any())
             {
                 response.StatusCode = 200;
@@ -164,34 +176,42 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             };
 
             var countryStateCityList = new List<CountryStateCityNestedResponseModel>();
-
             var getCountryList = await _context.Country.Select(x => new { x.Id, x.CountryName }).ToListAsync(cancellation);
 
             foreach (var country in getCountryList)
             {
                 var countryResponse = new CountryStateCityNestedResponseModel();
+                countryResponse.CountryId = country.Id;
+                countryResponse.CountryName = country.CountryName;
 
                 var stateList = new List<StateCityNestedResponseModel>();
-
-                var getStateList = await _context.State.Select(x => new { x.Id, x.StateName }).ToListAsync(cancellation);
+                var getStateList = await _context.State.Where(x => x.CountryId == country.Id).Select(x => new { x.Id, x.StateName }).ToListAsync(cancellation);
 
                 foreach (var state in getStateList)
                 {
                     var stateResponse = new StateCityNestedResponseModel();
                     stateResponse.StateId = state.Id;
                     stateResponse.StateName = state.StateName;
+
+                    var cityList = new List<CityNestedResponseModel>();
+                    var getCityList = await _context.City.Where(x => x.StateId == state.Id).Select(x => new { x.Id, x.CityName }).ToListAsync(cancellation);
+
+                    foreach (var city in getCityList)
+                    {
+                        var cityResponse = new CityNestedResponseModel();
+                        cityResponse.CityId = city.Id;
+                        cityResponse.CityName = city.CityName;
+                        cityList.Add(cityResponse);
+                    }
+
+                    stateResponse.CityList = cityList;
+
                     stateList.Add(stateResponse);
-
-                   
                 }
-
-                countryResponse.CountryId = country.Id;
-                countryResponse.CountryName = country.CountryName;
                 countryResponse.StateList = stateList;
 
                 countryStateCityList.Add(countryResponse);
             }
-
             response.StatusCode = 200;
             response.Message = "success";
             response.Result = countryStateCityList;
