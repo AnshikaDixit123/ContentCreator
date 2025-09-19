@@ -5,8 +5,9 @@ namespace ContentCreator.Application.Interfaces
 {
     public interface IHomeService
     {        
-        Task<ResponseData<UserResponseModel>> GetMyProfileAsync(GetMyProfileRequest request, CancellationToken cancellation);
+        Task<ResponseData<UserResponseModel>> GetMyProfileAsync(Guid UserId, CancellationToken cancellation);
         Task<ResponseData<bool>> CreateUserAsync(CreateNewUserRequest request, CancellationToken cancellation);
+        Task<ResponseData<bool>> SaveChangesAsync(SaveChangesRequest request, CancellationToken cancellation);
         Task<ResponseData<bool>> CreateRolesAsync(CreateRolesRequest request, CancellationToken cancellation);
         Task<ResponseData<List<CountryResponseModel>>> GetCountryAsync(CancellationToken cancellation);
         Task<ResponseData<List<StateResponseModel>>> GetStateAsync(Guid CountryId, CancellationToken cancellation);

@@ -1,4 +1,5 @@
 ﻿$(document).ready(function () {
+    localStorage.clear();
     $("#loginForm").submit(function (event) {
         event.preventDefault();
         var UserNameOrEmail = $("#UserNameOrEmail").val();
@@ -15,6 +16,8 @@
             processData: false,
             success: function (response) {
                 console.log(response)
+                localStorage.setItem("UserId", response.Result.UserId)
+                localStorage.setItem("UserToken", response.Result.UserToken)
                 location.href = "/home/myprofile";
             },
             error: function (error) {

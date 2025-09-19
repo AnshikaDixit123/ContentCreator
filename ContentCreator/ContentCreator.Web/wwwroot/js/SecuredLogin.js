@@ -1,4 +1,5 @@
 ﻿$(document).ready(function () {
+    localStorage.clear();
     $("#loginForm").submit(function (event) {
         event.preventDefault();
         var UserNameOrEmail = $("#UserNameOrEmail").val();

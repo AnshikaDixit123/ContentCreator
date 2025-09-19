@@ -94,11 +94,11 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
-        public async Task<ResponseData<UserResponseModel>> GetMyProfileAsync(GetMyProfileRequest request, CancellationToken cancellation)
+        public async Task<ResponseData<UserResponseModel>> GetMyProfileAsync(Guid UserId, CancellationToken cancellation)
         {
             var response = new ResponseData<UserResponseModel>();
             response.Message = "User doesn't exist";
-            var userDetail = await _userManager.FindByNameAsync(request.UserName);
+            var userDetail = await _userManager.FindByIdAsync(UserId.ToString());
 
             if (userDetail != null)
             {
@@ -109,13 +109,78 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 userResponse.LastName = userDetail.LastName;
                 userResponse.EmailAddress = userDetail.Email ?? string.Empty;
                 userResponse.PhoneNumber = userDetail.PhoneNumber ?? string.Empty;
+                userResponse.CompleteAddress = userDetail.CompleteAddress ?? string.Empty;
+                userResponse.CountryId = userDetail.CountryId;
+                userResponse.StateId = userDetail.StateId;
+                userResponse.CityId = userDetail.CityId;
 
                 response.StatusCode = 200;
                 response.Message = "success";
                 response.Result = userResponse;
                 response.IsSuccess = true;
             }
+            return response;
+        }
+        public async Task<ResponseData<bool>> SaveChangesAsync(SaveChangesRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "Email or phone number already exist!";
+
+            var normalizedEmail = _userManager.NormalizeEmail(request.Email);
+            string sql = @"
+            SELECT 
+                0 AS UserNameExists, 
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM AspNetUsers 
+                    WHERE NormalizedEmail = @Email 
+                      AND Id <> @UserId
+                ) THEN 1 ELSE 0 END AS EmailExists,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM AspNetUsers 
+                    WHERE PhoneNumber = @PhoneNumber 
+                      AND Id <> @UserId
+                ) THEN 1 ELSE 0 END AS PhoneExists;";
+            var exists = await _dbConnection.QuerySingleAsync<UserExistsDto>(sql, new
+            {
+                Email = normalizedEmail,
+                UserId = request.UserId,
+                PhoneNumber = request.PhoneNumber
+            });
+            if (exists.EmailExists)
+            {
+                response.Message = "Email already exists.";
                 return response;
+            }
+            if (exists.PhoneExists)
+            {
+                response.Message = "Phone number already exists.";
+                return response;
+            }
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+            response.Message = "User doesn't exist!";
+            if(user != null)
+            {
+                user.FirstName = request.FirstName;
+                user.LastName = request.LastName;
+                user.Email = request.Email;
+                user.PhoneNumber = request.PhoneNumber;
+                user.CountryId = request.CountryId;
+                user.StateId = request.StateId;
+                user.CityId = request.CityId;
+                user.CompleteAddress = request.CompleteAddress;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    response.StatusCode = 200;
+                    response.Message = "Profile Updated Successfully!";
+                    response.Result = true;
+                    response.IsSuccess = true;
+                }
+            }
+
+
+            return response;
         }
 
         public async Task<ResponseData<List<CountryResponseModel>>> GetCountryAsync(CancellationToken cancellation)

@@ -54,7 +54,6 @@ namespace ContentCreator.Api.Controllers
                 response = await _accountService.AuthenticateLoginAsync(request, RoleType.EndUser.ToString(), cancellation);
             }
             catch (Exception ex)
-
             {
                 response.Message = ex.Message;
                 response.StatusCode = 500;

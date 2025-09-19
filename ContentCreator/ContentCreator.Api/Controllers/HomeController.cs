@@ -47,12 +47,12 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetMyProfile")]
-        public async Task<IActionResult> GetMyProfile(GetMyProfileRequest request, CancellationToken cancellation)
+        public async Task<IActionResult> GetMyProfile(Guid UserId, CancellationToken cancellation)
         {
             var response = new ResponseData<UserResponseModel>();
             try
             {
-                response = await _homeService.GetMyProfileAsync(request, cancellation);
+                response = await _homeService.GetMyProfileAsync(UserId, cancellation);
             }
             catch (Exception ex)
             {
@@ -119,6 +119,22 @@ namespace ContentCreator.Api.Controllers
             {
                 response = await _homeService.CountryStateCityNestedAsync(cancellation);
 
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("SaveChanges")]
+        public async Task<IActionResult> SaveChanges([FromForm] SaveChangesRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _homeService.SaveChangesAsync(request, cancellation);
             }
             catch (Exception ex)
             {
