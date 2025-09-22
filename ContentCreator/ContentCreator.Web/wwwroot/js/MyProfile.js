@@ -14,14 +14,17 @@
                     var countryList = response.Result.length;
                     for (var i = 0; i < countryList; i++) {
                         var data = response.Result[i];
+                        var selectStr = "";
                         if (IsSelected) {
-                            //selectedCountryId
+                            if (selectedCountryId == data.Id) {
+                                selectStr = "selected"
+                            }
                         }
-                        var optionHtml = `<option value="${data.Id}">${data.CountryName}</option>`;
+                        var optionHtml = `<option ${selectStr} value="${data.Id}">${data.CountryName}</option>`;
                         $('#Country').append(optionHtml);
                     }
                     if (IsSelected) {
-                        //selectedCountryId
+                        GetStateList(selectedCountryId, true);
                     }
                 }
                 else {
@@ -49,8 +52,17 @@
                     var stateList = response.Result.length;
                     for (var i = 0; i < stateList; i++) {
                         var data = response.Result[i];
-                        var optionHtml = `<option value="${data.Id}">${data.StateName}</option>`;
+                        var selectStr = "";
+                        if (IsSelected) {
+                            if (selectedStateId == data.Id) {
+                                selectStr = "selected"
+                            }
+                        }
+                        var optionHtml = `<option ${selectStr} value="${data.Id}">${data.StateName}</option>`;
                         $('#State').append(optionHtml);
+                    }
+                    if (IsSelected) {
+                        GetCityList(selectedStateId, true);
                     }
                 }
                 else {
@@ -77,7 +89,13 @@
                     var cityList = response.Result.length;
                     for (var i = 0; i < cityList; i++) {
                         var data = response.Result[i];
-                        var optionHtml = `<option value="${data.Id}">${data.CityName}</option>`;
+                        var selectStr = "";
+                        if (IsSelected) {
+                            if (selectedCityId == data.Id) {
+                                selectStr = "selected"
+                            }
+                        }
+                        var optionHtml = `<option ${selectStr} value="${data.Id}">${data.CityName}</option>`;
                         $('#City').append(optionHtml);
                     }
                 }

@@ -141,6 +141,7 @@
         })
     }
     $(document).on('click', '#saveChanges', function () {
+
         var FirstName = $('#FirstName').val();
         var LastName = $('#LastName').val();
         var EmailAddress = $('#EmailAddress').val();

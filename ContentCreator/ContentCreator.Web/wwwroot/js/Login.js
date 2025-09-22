@@ -15,8 +15,8 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response)
                 localStorage.setItem("UserId", response.Result.UserId)
+                localStorage.setItem("RoleType", response.Result.RoleType)
                 localStorage.setItem("UserToken", response.Result.UserToken)
                 Swal.fire('success', 'success!', 'success');
             },

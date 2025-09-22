@@ -15,9 +15,9 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response)
                 localStorage.setItem("UserId", response.Result.UserId)
                 localStorage.setItem("UserToken", response.Result.UserToken)
+                localStorage.setItem("RoleType", response.Result.RoleType)
                 location.href = "/home/allusers"
             },
             error: function (error) {

@@ -25,7 +25,7 @@
                         </tr>`
                         $('#tblUserListBody').append(tableData)
                     }
-                    $('#tblUserList').DataTable();
+                    $('#tblUserList').DataTable;
                 }
                 else {
                     Swal.fire('warning', 'something went wrong', 'warning');

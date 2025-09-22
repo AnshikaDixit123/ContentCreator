@@ -188,7 +188,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<CountryResponseModel>>();
             response.Message = "Something went wrong";
             List<CountryResponseModel> countryList = new List<CountryResponseModel>();
-            countryList = await _context.Country.Select(x => new CountryResponseModel {Id =  x.Id, CountryName = x.CountryName}).ToListAsync();
+            countryList = await _context.Country.Select(x => new CountryResponseModel {Id =  x.Id, CountryName = x.CountryName, CountryCode = x.CountryCode ?? string.Empty, PhoneCode = x.PhoneCode ?? string.Empty, StateCount = 5}).ToListAsync();
             if (countryList.Any())
             {
                 response.StatusCode = 200;
@@ -204,7 +204,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<StateResponseModel>>();
             response.Message = "Something went wrong";
             List<StateResponseModel> stateList = new List<StateResponseModel>();
-            stateList = await _context.State.Select(x => new StateResponseModel { Id = x.Id, StateName = x.StateName, CountryId = x.CountryId }).ToListAsync();
+            stateList = await _context.State.Select(x => new StateResponseModel { Id = x.Id, StateName = x.StateName, CountryId = x.CountryId, StateCode = x.StateCode ?? string.Empty, CityCount = 5 }).ToListAsync();
             //var getState = await _context.State.Select(x => new { Id = x.Id, StateName = x.StateName, CountryId = x.CountryId }).ToListAsync();
             if (stateList.Any())
             {
