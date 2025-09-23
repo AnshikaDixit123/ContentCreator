@@ -16,12 +16,12 @@
         <div class="container mt-4">
             <div class="card p-4 shadow-sm">
                 <div class="mb-3">
-                    <label for="countryDropdown" class="form-label fw-bold">Country</label>
+                    <label for="countryInput" class="form-label fw-bold">Country</label>
                     <div class="d-flex gap-3 align-items-center">
                         <input type="text" id="countryInput" class="form-control w-auto" placeholder="Enter country name">
-
-                        <!-- Create user button -->
-                        <button class="btn btn-success" id="btnCreate">Add Country</button>
+                        <input type="text" id="countryCodeInput" class="form-control w-auto" placeholder="Enter country code">
+                        <input type="text" id="phoneCodeInput" class="form-control w-auto" placeholder="Enter phone code">
+                        <button class="btn btn-success" id="btnAddCountry">Add Country</button>
                     </div>
                 </div>
             </div>
@@ -55,13 +55,21 @@
         </div>
         <div class="container mt-4">
             <div class="card p-4 shadow-sm">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Country</label>
+                    <select class="form-control" id="ddlCountryOnState">
+                        <option value="">Select Country</option>
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="card p-4 shadow-sm">                
                 <div class="mb-3">
-                    <label for="stateDropdown" class="form-label fw-bold">State</label>
+                    <label for="stateInput" class="form-label fw-bold">State</label>
                     <div class="d-flex gap-3 align-items-center">
                         <input type="text" id="stateInput" class="form-control w-auto" placeholder="Enter state name">
-
-                        <!-- Create user button -->
-                        <button class="btn btn-success" id="btnCreate">Add State</button>
+                        <input type="text" id="stateCodeInput" class="form-control w-auto" placeholder="Enter state code">
+                        <button class="btn btn-success" id="btnAddState">Add State</button>
                     </div>
                 </div>
             </div>
@@ -94,13 +102,28 @@
         </div>
         <div class="container mt-4">
             <div class="card p-4 shadow-sm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Country</label>
+                        <select class="form-control" id="ddlCountryOnCity">
+                            <option value="">Select Country</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">State</label>
+                        <select class="form-control" id="StateforCity">
+                            <option value="">Select State</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="card p-4 shadow-sm">
                 <div class="mb-3">
-                    <label for="cityDropdown" class="form-label fw-bold">City</label>
+                    <label for="cityInput" class="form-label fw-bold">City</label>
                     <div class="d-flex gap-3 align-items-center">
                         <input type="text" id="cityInput" class="form-control w-auto" placeholder="Enter city name">
-
-                        <!-- Create user button -->
-                        <button class="btn btn-success" id="btnCreate">Add City</button>
+                        <button class="btn btn-success" id="btnAddCity">Add City</button>
                     </div>
                 </div>
             </div>

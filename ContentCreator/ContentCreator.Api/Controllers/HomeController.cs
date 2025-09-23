@@ -36,7 +36,7 @@ namespace ContentCreator.Api.Controllers
             var response = new ResponseData<bool>();
             try
             {
-              
+                response = await _homeService.CreateRolesAsync(request, cancellation);
             }
             catch (Exception ex)
             {
@@ -139,7 +139,51 @@ namespace ContentCreator.Api.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("AddCountry")]
+        public async Task<IActionResult> AddCountry([FromForm] AddCountryRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _homeService.AddCountryAsync(request, cancellation);
+            }
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("AddState")]
+        public async Task<IActionResult> AddState([FromForm] AddStateRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _homeService.AddStateAsync(request, cancellation);
+            }
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("AddCity")]
+        public async Task<IActionResult> AddCity([FromForm] AddCityRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _homeService.AddCityAsync(request, cancellation);
+            }
+            catch(Exception ex)
+            {
+                response.Message = ex.Message;
                 response.StatusCode = 500;
             }
             return StatusCode(response.StatusCode, response);

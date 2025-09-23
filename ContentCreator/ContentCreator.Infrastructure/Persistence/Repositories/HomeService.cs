@@ -86,14 +86,6 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             }
             return response;
         }
-        public async Task<ResponseData<bool>> CreateRolesAsync(CreateRolesRequest request, CancellationToken cancellation)
-        {
-            var response = new ResponseData<bool>();
-
-
-
-            return response;
-        }
         public async Task<ResponseData<UserResponseModel>> GetMyProfileAsync(Guid UserId, CancellationToken cancellation)
         {
             var response = new ResponseData<UserResponseModel>();
@@ -182,6 +174,15 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
+        public async Task<ResponseData<bool>> CreateRolesAsync(CreateRolesRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "Role already exist";
+            
+
+
+            return response;
+        }
 
         public async Task<ResponseData<List<CountryResponseModel>>> GetCountryAsync(CancellationToken cancellation)
         {
@@ -204,7 +205,12 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<StateResponseModel>>();
             response.Message = "Something went wrong";
             List<StateResponseModel> stateList = new List<StateResponseModel>();
-            stateList = await _context.State.Select(x => new StateResponseModel { Id = x.Id, StateName = x.StateName, CountryId = x.CountryId, StateCode = x.StateCode ?? string.Empty, CityCount = 5 }).ToListAsync();
+            stateList = await _context.State.Where(x => x.CountryId == CountryId).Select(x =>
+            new StateResponseModel {
+                Id = x.Id, StateName = x.StateName,
+                CountryId = x.CountryId,
+                StateCode = x.StateCode ?? string.Empty,
+                CityCount = 5 }).ToListAsync();
             //var getState = await _context.State.Select(x => new { Id = x.Id, StateName = x.StateName, CountryId = x.CountryId }).ToListAsync();
             if (stateList.Any())
             {
@@ -221,7 +227,9 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<CityResponseModel>>();
             response.Message = "Something went wrong";
             List<CityResponseModel> cityList = new List<CityResponseModel>();
-            cityList = await _context.City.Where(x => x.StateId == StateId).Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
+            cityList = await _context.City.Where(x => x.StateId == StateId).
+                Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, 
+                CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
             if (cityList.Any())
             {
                 response.StatusCode = 200;
@@ -280,6 +288,111 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             response.StatusCode = 200;
             response.Message = "success";
             response.Result = countryStateCityList;
+            response.IsSuccess = true;
+
+            return response;
+        }
+        public async Task<ResponseData<bool>> AddCountryAsync(AddCountryRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "This Country already exist";
+
+            var addCountry = await _context.Country.Where(x => 
+            x.CountryName == request.CountryName
+            || x.CountryCode == request.CountryCode 
+            || x.PhoneCode == request.PhoneCode).FirstOrDefaultAsync(cancellation);
+
+            if(addCountry != null)
+            {
+                if(addCountry.CountryName == request.CountryName)
+                {
+                    response.Message = "Country name already exist";
+                }
+                else if(addCountry.CountryCode == request.CountryCode)
+                {
+                    response.Message = "Country code already exist";
+                }
+                else
+                {
+                    response.Message = "Phone code already exist";
+                }
+                return response;
+            }
+            var country = new Country();
+            country.CountryName = request.CountryName;
+            country.CountryCode = request.CountryCode;
+            country.PhoneCode = request.PhoneCode;
+            _context.Country.Add(country);
+            await _context.SaveChangesAsync();
+
+            response.StatusCode = 200;
+            response.Message = "Country added successfully";
+            response.Result = true;
+            response.IsSuccess = true;
+
+            return response;
+        }
+        public async Task<ResponseData<bool>> AddStateAsync(AddStateRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "This State already exist";
+
+            var addState = await _context.State.Where(x => 
+            x.StateName == request.StateName
+            || x.StateCode == request.StateCode).FirstOrDefaultAsync(cancellation);
+
+            if(addState != null)
+            {
+                if(addState.StateName == request.StateName)
+                {
+                    response.Message = "State name already exist";
+                }
+                else
+                {
+                    response.Message = "State code already exist";
+                }
+                return response;
+            }
+            var state = new State();
+            state.StateName = request.StateName;
+            state.StateCode = request.StateCode;
+            state.CountryId = request.CountryId;
+            _context.State.Add(state);
+            await _context.SaveChangesAsync();
+
+            response.StatusCode = 200;
+            response.Message = "State added successfully";
+            response.Result = true;
+            response.IsSuccess = true;
+
+            return response;
+        }
+        public async Task<ResponseData<bool>> AddCityAsync(AddCityRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "This City already exist";
+
+            var addCity = await _context.City.Where(x => 
+            x.CityName == request.CityName).FirstOrDefaultAsync(cancellation);
+
+            if(addCity != null)
+            {
+                if (addCity.CityName == request.CityName)
+                {
+                    response.Message = "City name already exist";
+                }
+                return response;
+            }
+            var city = new City();
+            city.CityName = request.CityName;
+            city.StateId = request.StateId;
+            city.CountryId = request.CountryId;
+            _context.City.Add(city);
+            await _context.SaveChangesAsync();
+
+            response.StatusCode = 200;
+            response.Message = "City added successfully";
+            response.Result = true;
             response.IsSuccess = true;
 
             return response;

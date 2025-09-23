@@ -9,6 +9,9 @@ namespace ContentCreator.Application.Interfaces
         Task<ResponseData<bool>> CreateUserAsync(CreateNewUserRequest request, CancellationToken cancellation);
         Task<ResponseData<bool>> SaveChangesAsync(SaveChangesRequest request, CancellationToken cancellation);
         Task<ResponseData<bool>> CreateRolesAsync(CreateRolesRequest request, CancellationToken cancellation);
+        Task<ResponseData<bool>> AddCountryAsync(AddCountryRequest request, CancellationToken cancellation);
+        Task<ResponseData<bool>> AddStateAsync(AddStateRequest request, CancellationToken cancellation);
+        Task<ResponseData<bool>> AddCityAsync(AddCityRequest request, CancellationToken cancellation);
         Task<ResponseData<List<CountryResponseModel>>> GetCountryAsync(CancellationToken cancellation);
         Task<ResponseData<List<StateResponseModel>>> GetStateAsync(Guid CountryId, CancellationToken cancellation);
         Task<ResponseData<List<CityResponseModel>>> GetCityAsync(Guid StateId, CancellationToken cancellation);
