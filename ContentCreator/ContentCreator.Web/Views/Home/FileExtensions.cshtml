@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewData["Title"] = "FileExtensions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container my-5" id="FileExtension">
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-4">File Extensions</h4>
+        <div class="container mt-4">
+            <div class="card p-4 shadow-sm">
+                <div class="mb-2">
+                    <label for="fileType" class="form-label fw-bold">File Type</label>
+                    <div class="d-flex gap-3 align-items-center">
+                        <select class="form-select w-auto" id="fileTypeSelect">
+                            <option value="">Select File Extension</option>
+                        </select>
+                        <input type="text" id="fileExtensionInput" class="form-control w-auto" placeholder="Enter file extension">
+                        <input type="text" id="minimumSizeInput" class="form-control w-auto" placeholder="Minimum Size">
+                        <input type="text" id="maximumSizeInput" class="form-control w-auto" placeholder="Maximum Size">
+                        <button class="btn btn-success flex-shrink-0" id="btnAddFileExtension">Add Extension</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Table section -->
+            <div class="card p-3 mt-4 shadow-sm">
+                <table id="FileExtensionTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>File Type</th>
+                            <th>File Extension</th>
+                            <th>Minimum Size(kb)</th>
+                            <th>Maximum Size(kb)</th>
+                            <th>IsActive</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblCountryListBody">
+                        <!-- Rows will be filled dynamically (DataTable / API) -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

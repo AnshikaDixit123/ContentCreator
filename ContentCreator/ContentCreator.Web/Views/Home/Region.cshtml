@@ -8,6 +8,13 @@
     .gotocity {
         cursor: pointer;
     }
+
+    .disabled-section {
+        pointer-events: none; /* Prevents clicks */
+        opacity: 0.5; /* Greyed-out look */
+        cursor: not-allowed; /* Show disabled cursor */
+    }
+
 </style>
 
 <div class="container my-5"id ="CountrySection">
@@ -83,7 +90,7 @@
                             <th>State Name</th>
                             <th>State Code</th>
                             <th>City Count</th>
-                            <th>Action</th>
+                            <th id="ActionSection">Action</th>
                         </tr>
                     </thead>
                     <tbody id="tblStateListBody">

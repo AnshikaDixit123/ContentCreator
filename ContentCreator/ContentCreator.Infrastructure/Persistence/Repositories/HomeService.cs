@@ -226,9 +226,63 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<CityResponseModel>>();
             response.Message = "Something went wrong";
             List<CityResponseModel> cityList = new List<CityResponseModel>();
-            cityList = await _context.City.Where(x => (CountryId == Guid.Empty) || (CountryId != Guid.Empty && x.CountryId == CountryId)).
-                Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, 
-                CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
+
+            var query = _context.City.AsQueryable();
+
+            if(CountryId == Guid.Empty && StateId == Guid.Empty)
+            {
+                //query = query;
+            }
+            else if(StateId == Guid.Empty)
+            {
+                query = query.Where(x => x.CountryId == CountryId);
+            }
+            else
+            {
+                query = query.Where(x => x.CountryId == CountryId && x.StateId == StateId);
+            }
+            cityList = query.Select(x => new CityResponseModel
+            {
+                Id = x.Id,
+                CityName = x.CityName,
+                CountryId = x.CountryId,
+                StateId = x.StateId
+            }).ToList();
+
+            //if(1 == 1)
+            //{
+            //    var query1 = _context.City.Select(x => new CityResponseModel
+            //    {
+            //        Id = x.Id,
+            //        CityName = x.CityName,
+            //        CountryId = x.CountryId,
+            //        StateId = x.StateId
+            //    }).ToList();
+            //}
+
+            //if(2 == 2)
+            //{
+            //    var query2 = _context.City.Where(x => x.CountryId == CountryId).Select(x => new CityResponseModel
+            //    {
+            //        Id = x.Id,
+            //        CityName = x.CityName,
+            //        CountryId = x.CountryId,
+            //        StateId = x.StateId
+            //    }).ToList();
+            //}
+
+            //if(3 == 3)
+            //{
+            //    var query3 = _context.City.Where(x => x.CountryId == CountryId && x.StateId == StateId).Select(x => new CityResponseModel
+            //    {
+            //        Id = x.Id,
+            //        CityName = x.CityName,
+            //        CountryId = x.CountryId,
+            //        StateId = x.StateId
+            //    }).ToList();
+            //}
+
+            //Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
             if (cityList.Any())
             {
                 response.StatusCode = 200;

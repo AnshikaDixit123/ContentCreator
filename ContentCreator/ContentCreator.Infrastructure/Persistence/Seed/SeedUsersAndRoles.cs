@@ -257,6 +257,33 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 await _context.City.AddRangeAsync(cities);
                 await _context.SaveChangesAsync();
             }
+            var allowedExtension = await _context.AllowedFileTypesAndExtensions.FirstOrDefaultAsync();
+            if(allowedExtension == null)
+            {
+                var fileTypeAndExtension1 = new AllowedFileTypesAndExtensions
+                {
+                    FileType = "Image",
+                    FileExtension = ".jpg",
+                    MinimumSize = 100,
+                    MaximumSize = 10000
+                };
+                var fileTypeAndExtension2 = new AllowedFileTypesAndExtensions
+                {
+                    FileType = "Video",
+                    FileExtension = ".mp4",
+                    MinimumSize = 500,
+                    MaximumSize = 10000
+                };
+                var fileTypeAndExtension3 = new AllowedFileTypesAndExtensions
+                {
+                    FileType = "Audio",
+                    FileExtension = ".mp3",
+                    MinimumSize = 200,
+                    MaximumSize = 5000
+                };
+                await _context.AllowedFileTypesAndExtensions.AddRangeAsync(fileTypeAndExtension1,fileTypeAndExtension2,fileTypeAndExtension3);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

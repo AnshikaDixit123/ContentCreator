@@ -59,13 +59,16 @@
         var countryId = $(this).val();
         if (countryId) {
             clickedCountryId = countryId;
+            GetStateList();  
             $("#addStateSection").removeClass('d-none');
+            $("#stateInput, #stateCodeInput").val('');
         }
         else {
             clickedCountryId = emptyGuid;
+            GetStateList();  
             $("#addStateSection").addClass('d-none');
         }
-        GetStateList();
+             
     })
     
     function GetStateList() {
@@ -87,6 +90,9 @@
                         </tr>`
                         $('#tblStateListBody').append(tableData);
                     }
+                    if (clickedCountryId == emptyGuid) {
+                        $(".gotocity").addClass('disabled-section');
+                    }
                     //for dropdown
 
                     var optionHtml = `<option value="">Select State</option>`
@@ -95,6 +101,7 @@
                         optionHtml += `<option value="${data.Id}">${data.StateName}</option>`;
                     }
                     $('#StateforCity').html(optionHtml);
+
                 }
                 else {
                     console.log("error");
@@ -123,6 +130,7 @@
         $("#addCitySection").addClass('d-none');
         if (countryId) {
             clickedCountryId = countryId;
+            $("#cityInput").val('');
              GetStateList();
         }
         else {
@@ -130,6 +138,19 @@
         }
         GetCityList();
 
+    })
+    $(document).on("change", "#StateforCity", function () {
+        var stateId = $(this).val();
+        if (stateId) {
+            clickedStateId = stateId;
+            $("#addCitySection").removeClass('d-none');
+            $("#cityInput").val('');
+            GetCityList();
+        } else {
+            clickedStateId = emptyGuid;
+            GetCityList();
+        }
+        
     })
 
     $(document).on("click", ".backtostate, .backtocountry", function () {
@@ -165,7 +186,7 @@
     function GetCityList() {
         $('#tblCityListBody').html(``)
         $.ajax({
-            url: "https://localhost:7134/" + "api/Home/GetCity?CountryId=" + clickedCountryId + "&StateId" + clickedStateId,
+            url: "https://localhost:7134/" + "api/Home/GetCity?CountryId=" + clickedCountryId + "&StateId=" + clickedStateId,
             type: "GET",
             success: function (response) {
                 if (response.StatusCode == 200) {

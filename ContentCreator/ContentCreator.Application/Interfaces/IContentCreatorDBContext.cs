@@ -10,6 +10,7 @@ namespace ContentCreator.Application.Interfaces
         DbSet<Country> Country { get; }
         DbSet<State> State { get; }
         DbSet<City> City { get; }
+        DbSet<AllowedFileTypesAndExtensions> AllowedFileTypesAndExtensions { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
