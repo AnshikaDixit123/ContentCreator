@@ -205,13 +205,12 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<StateResponseModel>>();
             response.Message = "Something went wrong";
             List<StateResponseModel> stateList = new List<StateResponseModel>();
-            stateList = await _context.State.Where(x => x.CountryId == CountryId).Select(x =>
+            stateList = await _context.State.Where(x => ( CountryId == Guid.Empty) || (CountryId != Guid.Empty && x.CountryId == CountryId)).Select(x =>
             new StateResponseModel {
                 Id = x.Id, StateName = x.StateName,
                 CountryId = x.CountryId,
                 StateCode = x.StateCode ?? string.Empty,
                 CityCount = 5 }).ToListAsync();
-            //var getState = await _context.State.Select(x => new { Id = x.Id, StateName = x.StateName, CountryId = x.CountryId }).ToListAsync();
             if (stateList.Any())
             {
                 response.StatusCode = 200;
@@ -222,12 +221,12 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             return response;
         }
 
-        public async Task<ResponseData<List<CityResponseModel>>> GetCityAsync(Guid StateId, CancellationToken cancellation)
+        public async Task<ResponseData<List<CityResponseModel>>> GetCityAsync(Guid CountryId, Guid StateId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<CityResponseModel>>();
             response.Message = "Something went wrong";
             List<CityResponseModel> cityList = new List<CityResponseModel>();
-            cityList = await _context.City.Where(x => x.StateId == StateId).
+            cityList = await _context.City.Where(x => (CountryId == Guid.Empty) || (CountryId != Guid.Empty && x.CountryId == CountryId)).
                 Select(x => new CityResponseModel {Id =  x.Id, CityName = x.CityName, 
                 CountryId = x.CountryId, StateId = x.StateId}).ToListAsync();
             if (cityList.Any())

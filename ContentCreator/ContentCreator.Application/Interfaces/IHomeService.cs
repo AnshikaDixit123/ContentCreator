@@ -14,7 +14,7 @@ namespace ContentCreator.Application.Interfaces
         Task<ResponseData<bool>> AddCityAsync(AddCityRequest request, CancellationToken cancellation);
         Task<ResponseData<List<CountryResponseModel>>> GetCountryAsync(CancellationToken cancellation);
         Task<ResponseData<List<StateResponseModel>>> GetStateAsync(Guid CountryId, CancellationToken cancellation);
-        Task<ResponseData<List<CityResponseModel>>> GetCityAsync(Guid StateId, CancellationToken cancellation);
+        Task<ResponseData<List<CityResponseModel>>> GetCityAsync(Guid CountryId, Guid StateId, CancellationToken cancellation);
         Task<ResponseData<List<CountryStateCityNestedResponseModel>>> CountryStateCityNestedAsync(CancellationToken cancellation);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
+using ContentCreator.Domain.Entities.Identity;
 using ContentCreator.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -79,12 +80,13 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetState")]
-        public async Task<IActionResult> GetState(Guid CountryId, CancellationToken cancellation)
+        public async Task<IActionResult> GetState(Guid? CountryId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<StateResponseModel>>();
             try
             {
-                response = await _homeService.GetStateAsync(CountryId, cancellation);
+                Guid countryId = CountryId ?? Guid.Empty;
+                response = await _homeService.GetStateAsync(countryId, cancellation);
             }
             catch (Exception ex)
             {
@@ -95,12 +97,14 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetCity")]
-        public async Task<IActionResult> GetCity(Guid StateId, CancellationToken cancellation)
+        public async Task<IActionResult> GetCity(Guid? CountryId, Guid? StateId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<CityResponseModel>>();
             try
             {
-                response = await _homeService.GetCityAsync(StateId, cancellation);
+                var countryId = CountryId ?? Guid.Empty;
+                var stateId = StateId ?? Guid.Empty;
+                response = await _homeService.GetCityAsync(countryId, stateId, cancellation);
 
             }
             catch (Exception ex)

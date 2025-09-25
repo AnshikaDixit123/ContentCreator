@@ -28,12 +28,13 @@
                         $('#tblCountryListBody').append(tableData);
                     }
                     // for dropdowns
+                    var optionHtml = `<option value="">Select Country</option>`;
                     for (var i = 0; i < recordCountry; i++) {
                         var data = response.Result[i];
-                        var optionHtml = `<option value="${data.Id}">${data.CountryName}</option>`;
-                        $('#ddlCountryOnState').append(optionHtml);
-                        $('#ddlCountryOnCity').append(optionHtml);
+                        optionHtml += `<option value="${data.Id}">${data.CountryName}</option>`;                        
                     }
+                    $('#ddlCountryOnState').html(optionHtml);
+                    $('#ddlCountryOnCity').html(optionHtml);
                 }
                 else {
                     console.log("error");
@@ -55,8 +56,16 @@
     })
     
     $(document).on("change", "#ddlCountryOnState", function () {
-        clickedCountryId = $(this).val();
-        GetStateList(clickedCountryId);
+        var countryId = $(this).val();
+        if (countryId) {
+            clickedCountryId = countryId;
+            $("#addStateSection").removeClass('d-none');
+        }
+        else {
+            clickedCountryId = emptyGuid;
+            $("#addStateSection").addClass('d-none');
+        }
+        GetStateList();
     })
     
     function GetStateList() {
@@ -79,11 +88,13 @@
                         $('#tblStateListBody').append(tableData);
                     }
                     //for dropdown
+
+                    var optionHtml = `<option value="">Select State</option>`
                     for (var i = 0; i < recordState; i++) {
                         var data = response.Result[i];
-                        var optionHtml = `<option value="${data.Id}">${data.StateName}</option>`;
-                        $('#StateforCity').append(optionHtml);
+                        optionHtml += `<option value="${data.Id}">${data.StateName}</option>`;
                     }
+                    $('#StateforCity').html(optionHtml);
                 }
                 else {
                     console.log("error");
@@ -104,6 +115,21 @@
         $("#ddlCountryOnCity").val(clickedCountryId)
         $("#StateforCity").val(clickedStateId)
         GetCityList()
+    })
+    $(document).on("change", "#ddlCountryOnCity", function () {
+        var countryId = $(this).val();
+        clickedStateId = emptyGuid;
+        $('#StateforCity').html(`<option value="">Select State</option>`);
+        $("#addCitySection").addClass('d-none');
+        if (countryId) {
+            clickedCountryId = countryId;
+             GetStateList();
+        }
+        else {
+            clickedCountryId = emptyGuid;
+        }
+        GetCityList();
+
     })
 
     $(document).on("click", ".backtostate, .backtocountry", function () {
@@ -139,7 +165,7 @@
     function GetCityList() {
         $('#tblCityListBody').html(``)
         $.ajax({
-            url: "https://localhost:7134/" + "api/Home/GetCity?StateId=" + clickedStateId,
+            url: "https://localhost:7134/" + "api/Home/GetCity?CountryId=" + clickedCountryId + "&StateId" + clickedStateId,
             type: "GET",
             success: function (response) {
                 if (response.StatusCode == 200) {
