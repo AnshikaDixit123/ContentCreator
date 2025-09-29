@@ -12,7 +12,7 @@
                     <label for="fileType" class="form-label fw-bold">File Type</label>
                     <div class="d-flex gap-3 align-items-center">
                         <select class="form-select w-auto" id="fileTypeSelect">
-                            <option value="">Select File Extension</option>
+                            <option value="">Select File Type</option>
                         </select>
                         <input type="text" id="fileExtensionInput" class="form-control w-auto" placeholder="Enter file extension">
                         <input type="text" id="minimumSizeInput" class="form-control w-auto" placeholder="Minimum Size">
@@ -36,7 +36,7 @@
                             <th>IsActive</th>
                         </tr>
                     </thead>
-                    <tbody id="tblCountryListBody">
+                    <tbody id="tblFileTypeListBody">
                         <!-- Rows will be filled dynamically (DataTable / API) -->
                     </tbody>
                 </table>
@@ -44,4 +44,6 @@
         </div>
     </div>
 </div>
+<script src="~/js/fileextensions.js"></script>
+
 
