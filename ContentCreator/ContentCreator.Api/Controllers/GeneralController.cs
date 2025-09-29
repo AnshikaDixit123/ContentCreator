@@ -48,12 +48,12 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetFileTypeList")]
-        public async Task<IActionResult> GetFileTypeList(CancellationToken cancellation)
+        public async Task<IActionResult> GetFileTypeList(string? filterFileType, CancellationToken cancellation)
         {
             var response = new ResponseData<FileTypeComboResponseModel>();
             try
             {
-                response = await _generalService.GetFileTypeListAsync(cancellation);
+                response = await _generalService.GetFileTypeListAsync(filterFileType, cancellation);
             }
             catch(Exception ex)
             {

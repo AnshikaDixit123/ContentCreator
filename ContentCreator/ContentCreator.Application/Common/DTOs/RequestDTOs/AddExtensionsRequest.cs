@@ -6,5 +6,6 @@
         public string? FileExtension { get; set; }
         public int? MinimumSize { get; set; }
         public int? MaximumSize { get; set; }
+        public bool IsActive { get; set; }
     }
 }

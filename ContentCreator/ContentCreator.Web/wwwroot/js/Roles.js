@@ -19,6 +19,7 @@
                             <td>${data.RoleDescription}</td>
                             <td>${data.RoleType}</td>
                             <td>${data.IsProtected}</td>
+                            <td><span class="badge bg-success">Assign</span></td>
                         </tr>`
                         $('#tblRolesListBody').append(tableData);
                     }

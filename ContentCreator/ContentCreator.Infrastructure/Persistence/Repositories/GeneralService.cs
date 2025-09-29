@@ -84,34 +84,30 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             }
             return response;
         }
-        public async Task<ResponseData<FileTypeComboResponseModel>> GetFileTypeListAsync(CancellationToken cancellationToken)
+        public async Task<ResponseData<FileTypeComboResponseModel>> GetFileTypeListAsync(string? filterFileType, CancellationToken cancellationToken)
         {
-            string filterFileType = string.Empty;
-            if (false)
-                filterFileType = "Image";
             var response = new ResponseData<FileTypeComboResponseModel>();
             response.Message = "Error in getting filetype list";
 
             FileTypeComboResponseModel comboResponseModel = new FileTypeComboResponseModel();
 
             List<FileTypeResponseModel> fileTypeList = new List<FileTypeResponseModel>();
-            List<OnlyFileTypeResponseModel> onlyFileTypeList = new List<OnlyFileTypeResponseModel>();
+            List<OnlyFileTypeResponseModel> onlyFileTypeList = Enum.GetValues(typeof(FileType))
+                .Cast<FileType>()
+                .Select(ft => new OnlyFileTypeResponseModel
+                {
+                    FileType = ft.ToString()
+                })
+                .ToList();
 
-            var getFileType = await _context.AllowedFileTypesAndExtensions.ToListAsync();
-
-            var fileTypeOnly = getFileType.GroupBy(x => x.FileType).Select(x=>x.Key).ToList();
-            foreach(var item in fileTypeOnly)
-            {
-                var fileType = new OnlyFileTypeResponseModel();
-                fileType.FileType = item;
-                onlyFileTypeList.Add(fileType);
-            }
+            var getFileType = await _context.AllowedFileTypesAndExtensions.ToListAsync(cancellationToken);
 
             if (!string.IsNullOrEmpty(filterFileType))
                 getFileType = getFileType.Where(x => x.FileType == filterFileType).ToList();
 
             foreach ( var fileType in getFileType)
             {
+
                 var fileTypeResponse = new FileTypeResponseModel();
                 fileTypeResponse.Id = fileType.Id;
                 fileTypeResponse.FileType = fileType.FileType;
@@ -154,6 +150,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 extension.FileExtension = request.FileExtension;
                 extension.MinimumSize = request.MinimumSize;
                 extension.MaximumSize = request.MaximumSize;
+                extension.IsActive = request.IsActive;
                 _context.AllowedFileTypesAndExtensions.Add(extension);
                 await _context.SaveChangesAsync();
 

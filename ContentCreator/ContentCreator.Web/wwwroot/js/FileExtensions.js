@@ -1,12 +1,13 @@
 ﻿$(document).ready(function () {
-    let emptyGuid = "00000000-0000-0000-0000-000000000000";
-    let clickedFileType = emptyGuid;
+    let clickedFileType = null;
     GetFileTypeList()
     function GetFileTypeList() {
         $("#tblFileTypeListBody").html(``);
+        var selectedFileType = $("#fileTypeSelect").val();
         $.ajax({
             url: "https://localhost:7134/" + "api/General/GetFileTypeList",
             type: "GET",
+            data: { filterFileType: clickedFileType }, 
             success: function (response) {
                 if (response.StatusCode == 200) {
                     var recordFileType = response.Result.FileTypeDetailList.length;
@@ -27,7 +28,8 @@
                     var recordOnlyFileType = response.Result.FileTypeList.length;
                     for (var i = 0; i < recordOnlyFileType; i++) {
                         var data = response.Result.FileTypeList[i];
-                        optionHtml += `<option value="${data.FileType}">${data.FileType}</option>`;
+                        var isSelected = data.FileType === selectedFileType ? "selected" : "";
+                        optionHtml += `<option value="${data.FileType}" ${isSelected}>${data.FileType}</option>`;
                     }
                     $('#fileTypeSelect').html(optionHtml);
                 }
@@ -45,12 +47,14 @@
         var fileExtension = $("#fileExtensionInput").val();
         var minimumSize = $("#minimumSizeInput").val();
         var maximumSize = $("#maximumSizeInput").val();
+        var isActive = $("input[name='isActive']:checked").val(); 
 
         var formData = new FormData();
         formData.append('FileType', fileType);
         formData.append('FileExtension', fileExtension);
         formData.append('MinimumSize', minimumSize);
         formData.append('MaximumSize', maximumSize);
+        formData.append('IsActive', isActive);
         
         $.ajax({
             url: "https://localhost:7134/" + "api/General/AddExtension",
@@ -74,6 +78,55 @@
         });       
     });
     $(document).on("change", "#fileTypeSelect", function () {
-        
+        var fileTypeId = $(this).val();
+        $("#fileExtensionInput").val('');
+        $("#minimumSizeInput").val('');
+        $("#maximumSizeInput").val('');
+        if (fileTypeId) {
+            clickedFileType = fileTypeId;
+            $("#btnAddFileExtension, #isActiveYes, #isActiveNo").attr("disabled", false)
+            $("#fileExtensionInput, #minimumSizeInput, #maximumSizeInput, #btnAddFileExtension").attr("readonly", false);
+            GetFileTypeList()
+        }
+        else {
+            clickedFileType = null;
+            GetFileTypeList()
+            $("#btnAddFileExtension, #isActiveYes, #isActiveNo").attr("disabled", true)
+            $("#fileExtensionInput, #minimumSizeInput, #maximumSizeInput").attr("readonly", true);
+        }
     })
+
+
+
+    //Validations...
+    $(document).on('keypress', '.block-spacebar', function (e) {
+        if (e.which === 32) {
+            e.preventDefault(); // Block spacebar
+        }
+    });
+
+    // Remove spaces on paste
+    $(document).on('paste', '.block-spacebar', function (e) {
+        e.preventDefault();
+        let pastedData = e.originalEvent.clipboardData.getData('text');
+        let cleaned = pastedData.replace(/\s+/g, ''); // Remove all spaces
+        document.execCommand('insertText', false, cleaned);
+    });
+
+    $(document).on("keypress paste", ".numOnly", function (e) {
+        if (e.type === "keypress" && (e.which < 48 || e.which > 57)) e.preventDefault();
+        if (e.type === "paste" && !/^\d+$/.test((e.originalEvent || e).clipboardData.getData('text'))) e.preventDefault();
+    });
+
+    $("#fileExtensionInput").on("keypress", function (e) {
+        let val = this.value;
+        let char = e.key;
+
+        if (val.length >= 5) e.preventDefault();
+        if (char === "." && val.includes(".")) e.preventDefault();
+        if (val.length === 0 && char !== ".") e.preventDefault();
+        if (!/^[a-zA-Z0-9.]$/.test(char)) e.preventDefault();
+    });
+
+
 });
