@@ -1,4 +1,5 @@
-﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
+﻿using Azure.Core;
+using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -72,6 +73,21 @@ namespace ContentCreator.Api.Controllers
             }
             catch(Exception ex)
             { 
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("GetExtensionList")]
+        public async Task<IActionResult> GetExtensionList(Guid RoleId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<FileTypeResponseModel>>();
+            try
+            {
+                response = await _generalService.GetExtensionListAsync(RoleId, cancellation);
+            }
+            catch (Exception ex)
+            {
                 response.Message = ex.Message;
                 response.StatusCode = 500;
             }

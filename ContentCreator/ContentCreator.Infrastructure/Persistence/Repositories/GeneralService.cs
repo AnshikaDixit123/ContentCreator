@@ -1,4 +1,5 @@
-﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
+﻿using Azure;
+using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
 using ContentCreator.Domain.Entities.Identity;
@@ -161,5 +162,31 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             }
             return response;
         }
+        public async Task<ResponseData<List<FileTypeResponseModel>>> GetExtensionListAsync(Guid RoleId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<FileTypeResponseModel>> ();
+            response.Message = "Error in getting filetype extension list";
+            List<FileTypeResponseModel> extensionList = new List<FileTypeResponseModel>();
+
+            var getAllowedFileType = await _roleManager.FindByIdAsync(RoleId.ToString());
+
+            var getextensionList = await _context.AllowedFileTypesAndExtensions.Where(x=>x.FileType == getAllowedFileType.AllowedFileType).Select(x => new FileTypeResponseModel
+            {
+                Id = x.Id,
+                FileExtension = x.FileExtension,
+                FileType = x.FileType
+            }).ToListAsync();
+            if (getextensionList.Any())
+            {
+                response.StatusCode = 200;
+                response.Message = "success";
+                response.IsSuccess = true;
+                response.Result = getextensionList;
+            }
+
+            return response;
+        }
+
+
     }
 }

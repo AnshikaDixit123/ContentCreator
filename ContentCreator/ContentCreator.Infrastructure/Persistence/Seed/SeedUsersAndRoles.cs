@@ -47,7 +47,7 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
             if (!await roleManager.RoleExistsAsync(Roles.Photographer.ToString()))
             {
-                var role = new ApplicationRole { Name = Roles.Photographer.ToString(), RoleDescription = "Role for Photographerr" };
+                var role = new ApplicationRole { Name = Roles.Photographer.ToString(), RoleDescription = "Role for Photographerr", AllowedFileType = "Image" };
 
                 await roleManager.CreateAsync(role);
             }
@@ -56,7 +56,7 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
             if (!await roleManager.RoleExistsAsync(Roles.Videographer.ToString()))
             {
-                var role = new ApplicationRole { Name = Roles.Videographer.ToString(), RoleDescription = "Role for Videographer" };
+                var role = new ApplicationRole { Name = Roles.Videographer.ToString(), RoleDescription = "Role for Videographer", AllowedFileType = "Video" };
 
                 await roleManager.CreateAsync(role);
             }
@@ -65,7 +65,7 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
             if (!await roleManager.RoleExistsAsync(Roles.Singer.ToString()))
             {
-                var role = new ApplicationRole { Name = Roles.Singer.ToString(), RoleDescription = "Role for Singer" };
+                var role = new ApplicationRole { Name = Roles.Singer.ToString(), RoleDescription = "Role for Singer", AllowedFileType = "Audio" };
 
                 await roleManager.CreateAsync(role);
             }

@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-
+    let clickedRoleId = null;
     GetRolesList()
     function GetRolesList() {
         $('#tblRolesListBody').html(``)
@@ -12,14 +12,15 @@
                     var recordRoles = response.Result.length;
                     for (var i = 0; i < recordRoles; i++) {
                         var data = response.Result[i];
-                        var tableData = `<tr>
+                        var tableData = `<tr data-roleId = ${data.Id}>
                             <td value="${data.Id}">${i + 1}</td>
                             <td>${data.RoleName}</td>
                             <td>${data.UserCount}</td>
                             <td>${data.RoleDescription}</td>
                             <td>${data.RoleType}</td>
                             <td>${data.IsProtected}</td>
-                            <td><span class="badge bg-success">Assign</span></td>
+                            <td><button type="button" class="btn btn-success addExtension" 
+                            data-bs-toggle="modal" data-bs-target="#createSubscriptionModal">Assign</button></td>
                         </tr>`
                         $('#tblRolesListBody').append(tableData);
                     }
@@ -33,4 +34,41 @@
             }
         });
     }
-})
+    function GetExtensionList(clickedRoleId) {
+        $.ajax({
+            url: "https://localhost:7134/" + "api/General/GetExtensionList?RoleId=" + clickedRoleId,
+            type: "GET",
+            success: function (response) {
+                if (response.StatusCode == 200) {
+                    console.log(response);
+                    var optionHtml = ` `;
+                    var recordExtensions = response.Result.length;
+                    for (var i = 0; i < recordExtensions; i++) {
+                        var data = response.Result[i];
+                        optionHtml += `<option value="${data.Id}">${data.FileExtension}</option>`;
+                    }
+                    $("#multiple-select").html(optionHtml);
+                    $('#multiple-select').select2({
+                        placeholder: "Please select...",
+                        allowClear: true,   // adds a clear (x) button
+                        tags: true          // enable creating new tags
+
+                    });
+                }
+                else {
+                    console.log("Error fetching extensions");
+                }
+            },
+            error: function (error) {
+                console.warn(error);
+            }
+        });
+    }
+    $(document).on("click", ".addExtension", function () {
+        var roleId = $(this).closest("tr").data("roleid");
+        if (roleId) {
+            clickedRoleId = roleId;
+            GetExtensionList(clickedRoleId)
+        }
+    });
+});
