@@ -58,7 +58,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             response.Message = "Something went wrong";
             List<RolesResponseModel> roleList = new List<RolesResponseModel>();
 
-            var getRole = _roleManager.Roles.Select(x => new { x.Id, x.Name, x.RoleDescription, x.RoleType, x.IsProtected }).ToList();
+            var getRole = _roleManager.Roles.Select(x => new { x.Id, x.Name, x.RoleDescription, x.RoleType, x.IsProtected, x.AllowedFileType}).ToList();
             if (getRole.Any())
             {
                 foreach (var role in getRole)
@@ -75,6 +75,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                     roleResponse.IsProtected = role.IsProtected;
                     var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
                     roleResponse.UserCount = usersInRole.Count;
+                    roleResponse.IsExtensionNeeded = string.IsNullOrEmpty(role.AllowedFileType) ? true : false;
 
                     roleList.Add(roleResponse);
                 }
@@ -186,7 +187,41 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
+        public async Task<ResponseData<bool>> AssignExtensionsAsync(AssignExtensionsRequest request, CancellationToken cancellation)
+        
+        {
+            var response = new ResponseData<bool>();
 
+            var existingExtensions = await _context.AllowedExtensionOnRoles.Where(x => x.RoleId == request.RoleId && request.FileTypeId.Contains(x.FileTypeId))
+                .Select(x => x.FileTypeId)
+                .ToListAsync(cancellation);
 
+            var assignExtensions = request.FileTypeId.Except(existingExtensions).ToList();
+
+            if (!assignExtensions.Any())
+            {
+                response.Message = "Already Exist";
+                response.StatusCode = 200;
+                response.Result = false;
+            }
+            else
+            {
+                foreach(var extension in assignExtensions)
+                {
+                    _context.AllowedExtensionOnRoles.Add(new AllowedExtensionOnRoles
+                    {
+                        RoleId = request.RoleId,
+                        FileTypeId = extension
+                    });
+                }
+                await _context.SaveChangesAsync(cancellation);
+
+                response.StatusCode = 200;
+                response.Message = "Data Added Successfully";
+                response.Result = true;
+            }
+            
+            return response;
+        }
     }
 }

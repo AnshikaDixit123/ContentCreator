@@ -5,13 +5,13 @@ namespace ContentCreator.Application.Interfaces
 {
     public interface IContentCreatorDBContext
     {
-        DbSet<ApplicationUser> Users { get; }
-        DbSet<ApplicationRole> Roles { get; }
-        DbSet<Country> Country { get; }
-        DbSet<State> State { get; }
-        DbSet<City> City { get; }
-        DbSet<AllowedFileTypesAndExtensions> AllowedFileTypesAndExtensions { get; }
-        DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; }
+        DbSet<ApplicationUser> Users { get; set; }
+        DbSet<ApplicationRole> Roles { get; set; }
+        DbSet<Country> Country { get; set; }
+        DbSet<State> State { get; set; }
+        DbSet<City> City { get; set; }
+        DbSet<AllowedFileTypesAndExtensions> AllowedFileTypesAndExtensions { get; set; }
+        DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

@@ -12,6 +12,11 @@
                     var recordRoles = response.Result.length;
                     for (var i = 0; i < recordRoles; i++) {
                         var data = response.Result[i];
+                        var btn = ``;
+                        if (data.IsExtensionNeeded) {
+                            btn = `<button type="button" class="btn btn-success addExtension" 
+                            data-bs-toggle="modal" data-bs-target="#createSubscriptionModal">Assign</button>`;
+                        }
                         var tableData = `<tr data-roleId = ${data.Id}>
                             <td value="${data.Id}">${i + 1}</td>
                             <td>${data.RoleName}</td>
@@ -19,8 +24,7 @@
                             <td>${data.RoleDescription}</td>
                             <td>${data.RoleType}</td>
                             <td>${data.IsProtected}</td>
-                            <td><button type="button" class="btn btn-success addExtension" 
-                            data-bs-toggle="modal" data-bs-target="#createSubscriptionModal">Assign</button></td>
+                            <td>${btn}</td>
                         </tr>`
                         $('#tblRolesListBody').append(tableData);
                     }
@@ -64,11 +68,45 @@
             }
         });
     }
+    
     $(document).on("click", ".addExtension", function () {
         var roleId = $(this).closest("tr").data("roleid");
         if (roleId) {
             clickedRoleId = roleId;
             GetExtensionList(clickedRoleId)
         }
+    });
+    $(document).on("click", "#addBtn", function () {
+        var roleId = clickedRoleId;
+        var fileTypeIds = $("#multiple-select").val();
+
+        var formData = new FormData();
+        formData.append('RoleId', roleId);
+        if (fileTypeIds && fileTypeIds.length > 0) {
+            for (var i = 0; i < fileTypeIds.length; i++) {
+                formData.append('FileTypeId', fileTypeIds[i]);
+            }
+        }
+
+
+        $.ajax({
+            url: "https://localhost:7134/" + "api/General/AssignExtensions",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.StatusCode == 200) {
+                    Swal.fire('Successful', response.Message, 'success');                    
+                }
+                else {
+                    Swal.fire('Warning', response.Message, 'error');
+                }
+
+            },
+            error: function (error) {
+                console.warn(error)
+            }
+        })
     });
 });

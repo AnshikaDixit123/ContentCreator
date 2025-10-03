@@ -8,5 +8,7 @@
         public string RoleType { get; set; }
         public int UserCount { get; set; }
         public bool IsProtected { get; set; }
+        public bool IsExtensionNeeded { get; set; } = false;
+
     }
 }
