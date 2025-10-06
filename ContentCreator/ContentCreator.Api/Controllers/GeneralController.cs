@@ -93,5 +93,20 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
+        [HttpPost("AssignExtensions")]
+        public async Task<IActionResult> AssignExtensions([FromForm] AssignExtensionsRequest request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _generalService.AssignExtensionsAsync(request, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
