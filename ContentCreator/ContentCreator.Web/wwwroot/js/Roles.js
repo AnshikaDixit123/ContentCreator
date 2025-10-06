@@ -18,14 +18,39 @@
                             data-bs-toggle="modal" data-bs-target="#createSubscriptionModal">Assign</button>`;
                         }
                         var tableData = `<tr data-roleId = ${data.Id}>
-                            <td value="${data.Id}">${i + 1}</td>
-                            <td>${data.RoleName}</td>
-                            <td>${data.UserCount}</td>
-                            <td>${data.RoleDescription}</td>
-                            <td>${data.RoleType}</td>
+                             <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span>${i + 1}</span>
+                                    <button class="btn btn-sm btn-light toggle-detailstoggle-details"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#details-${data.Id}"
+                                            aria-expanded="false">▼</button>
+                                </div>
+                            </td>
+                            <td>${data.RoleName || ''}</td>
+                            <td>${data.UserCount || ''}</td>
+                            <td>${data.RoleDescription || ''}</td>
+                            <td>${data.RoleType || ''}</td>
                             <td>${data.IsProtected}</td>
                             <td>${btn}</td>
-                        </tr>`
+                        </tr>
+                        <tr class="collapse bg-light" id="details-${data.Id}">
+                            <td colspan="7">
+                                <div class="p-3 text-secondary"><table class="table table-sm table-bordered mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                    </tbody>
+                                </table></div>
+                            </td>
+                        </tr>
+                    `; 
                         $('#tblRolesListBody').append(tableData);
                     }
                 }
@@ -87,8 +112,6 @@
                 formData.append('FileTypeId', fileTypeIds[i]);
             }
         }
-
-
         $.ajax({
             url: "https://localhost:7134/" + "api/General/AssignExtensions",
             type: "POST",
@@ -109,4 +132,24 @@
             }
         })
     });
+    $(document).on("click", ".toggle-details", function () {      
+        var roleId = $(this).closest("tr").data("roleid");
+        $.ajax({
+            url: "https://localhost:7134/" + "api/General/GetAssignedExtensionData",
+            type: "GET",
+            data: { RoleId: roleId }, 
+            success: function (response) {
+                if (response.StatusCode == 200) {
+                    Swal.fire('Successful', response.Message, 'success');
+                }
+                else {
+                    Swal.fire('Warning', response.Message, 'error');
+                }
+
+            },
+            error: function (error) {
+                console.warn(error)
+            }
+        })
+    })
 });

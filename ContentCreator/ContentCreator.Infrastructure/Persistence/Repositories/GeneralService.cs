@@ -59,6 +59,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             List<RolesResponseModel> roleList = new List<RolesResponseModel>();
 
             var getRole = _roleManager.Roles.Select(x => new { x.Id, x.Name, x.RoleDescription, x.RoleType, x.IsProtected, x.AllowedFileType}).ToList();
+
             if (getRole.Any())
             {
                 foreach (var role in getRole)
@@ -75,7 +76,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                     roleResponse.IsProtected = role.IsProtected;
                     var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
                     roleResponse.UserCount = usersInRole.Count;
-                    roleResponse.IsExtensionNeeded = string.IsNullOrEmpty(role.AllowedFileType) ? true : false;
+                    roleResponse.IsExtensionNeeded = string.IsNullOrEmpty(role.AllowedFileType) ? false : true;
 
                     roleList.Add(roleResponse);
                 }
@@ -221,6 +222,26 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Result = true;
             }
             
+            return response;
+        }
+        public async Task<ResponseData<List<AssignedExtensionResponseModel>>> GetAssignedExtensionDataAsync(Guid RoleId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<AssignedExtensionResponseModel>> ();
+            response.Message = "Error in getting assigned file extensions";
+
+            var getAssignedExtensionIds = await _context.AllowedExtensionOnRoles.Where(x => x.RoleId == RoleId).Select(x => x.FileTypeId).ToListAsync(cancellation);
+            if (getAssignedExtensionIds.Any())
+            {
+                var getAssignedExtension = await _context.AllowedFileTypesAndExtensions.Where(x => getAssignedExtensionIds.Contains(x.Id)).Select(x=> new AssignedExtensionResponseModel { 
+                    FileTypeId = x.Id, Extension = x.FileExtension}).ToListAsync(cancellation);
+                if (getAssignedExtension.Any())
+                {
+                    response.StatusCode = 200;
+                    response.Message = "Assigned filetype list";
+                    response.Result = getAssignedExtension;
+                    response.IsSuccess = true;
+                }
+            }
             return response;
         }
     }

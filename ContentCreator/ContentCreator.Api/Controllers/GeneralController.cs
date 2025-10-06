@@ -108,5 +108,20 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
+        [HttpGet("GetAssignedExtensionData")]
+        public async Task<IActionResult> GetAssignedExtensionData(Guid RoleId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<AssignedExtensionResponseModel>>();
+            try
+            {
+                response = await _generalService.GetAssignedExtensionDataAsync(RoleId, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

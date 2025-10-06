@@ -9,6 +9,7 @@ namespace ContentCreator.Application.Interfaces
         Task<ResponseData<List<UserDetailsResponse>>> GetUserListAsync(CancellationToken cancellation);
         Task<ResponseData<FileTypeComboResponseModel>> GetFileTypeListAsync(string? filterFileType, CancellationToken cancellation);
         Task<ResponseData<List<RolesResponseModel>>> GetRoleListAsync(bool? IncludeSuperAdmin, CancellationToken cancellation);
+        Task<ResponseData<List<AssignedExtensionResponseModel>>> GetAssignedExtensionDataAsync(Guid RoleId, CancellationToken cancellation);
         Task<ResponseData<bool>> AddExtensionAsync(AddExtensionsRequest request, CancellationToken cancellation);
         Task<ResponseData<bool>> AssignExtensionsAsync(AssignExtensionsRequest request, CancellationToken cancellation);
         Task<ResponseData<List<FileTypeResponseModel>>> GetExtensionListAsync(Guid RoleId, CancellationToken cancellation);
