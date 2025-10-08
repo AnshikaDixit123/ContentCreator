@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "UploadContent";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -138,6 +137,7 @@
                 <select class="form-select form-select-sm" id="visibility">
                     <option value="public">🌍 Public</option>
                     <option value="private">🔒 Private</option>
+                    <option value="subscribed">⭐ Subscribed Only</option>
                 </select>
             </div>
 
@@ -189,10 +189,13 @@
           post.innerHTML = `
             <div class="post-header">
               <img src="https://via.placeholder.com/40" alt="user">
-              <div>
-                <strong>User Name</strong> <br>
-                <small>${vis === "public" ? "🌍 Public" : "🔒 Private"}</small>
-              </div>
+                     <div>
+           <strong>User Name</strong> <br>
+           <small>
+               ${vis === "public" ? "🌍 Public" : vis === "private" ? "🔒 Private" : vis === "subscribed" ? "⭐ Subscribed Only" : ""}
+           </small>
+        </div>
+
             </div>
             <p>${text}</p>
             ${fileData ? (fileData.startsWith("data:video") ?
@@ -218,6 +221,4 @@
     </script>
 </body>
 </html>
-
-
-
+<script src="~/js/uploadcontent.js"></script>

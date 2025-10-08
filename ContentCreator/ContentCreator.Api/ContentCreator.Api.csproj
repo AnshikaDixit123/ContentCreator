@@ -22,6 +22,9 @@
   <ItemGroup>
     <Folder Include="Filters\" />
     <Folder Include="Extensions\" />
+    <Folder Include="wwwroot\ContentCreator\Singer\" />
+    <Folder Include="wwwroot\ContentCreator\Videographer\" />
+    <Folder Include="wwwroot\ContentCreator\Photographer\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
     let clickedRoleId = null;
+
     GetRolesList()
     function GetRolesList() {
         $('#tblRolesListBody').html(``)
@@ -17,40 +18,30 @@
                             btn = `<button type="button" class="btn btn-success addExtension" 
                             data-bs-toggle="modal" data-bs-target="#createSubscriptionModal">Assign</button>`;
                         }
-                        var tableData = `<tr data-roleId = ${data.Id}>
-                             <td>
+                        var tableData = `
+                            <tr data-roleId="${data.Id}">
+                              <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span>${i + 1}</span>
-                                    <button class="btn btn-sm btn-light toggle-detailstoggle-details"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target="#details-${data.Id}"
-                                            aria-expanded="false">▼</button>
+                                  <span>${i + 1}</span>
+                                  <button class="btn btn-sm btn-light get-details"
+                                      type="button"
+                                      data-bs-toggle="collapse"
+                                      data-bs-target="#details-${data.Id}"
+                                      aria-expanded="false"
+                                      aria-controls="details-${data.Id}">
+                                    <span class="arrow">▶</span>
+                                  </button>
                                 </div>
-                            </td>
-                            <td>${data.RoleName || ''}</td>
-                            <td>${data.UserCount || ''}</td>
-                            <td>${data.RoleDescription || ''}</td>
-                            <td>${data.RoleType || ''}</td>
-                            <td>${data.IsProtected}</td>
-                            <td>${btn}</td>
-                        </tr>
-                        <tr class="collapse bg-light" id="details-${data.Id}">
-                            <td colspan="7">
-                                <div class="p-3 text-secondary"><table class="table table-sm table-bordered mb-0">
-                                    <tbody>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                    </tbody>
-                                </table></div>
-                            </td>
-                        </tr>
-                    `; 
+                              </td>
+                              <td>${data.RoleName || ''}</td>
+                              <td>${data.UserCount || ''}</td>
+                              <td>${data.RoleDescription || ''}</td>
+                              <td>${data.RoleType || ''}</td>
+                              <td>${data.IsProtected}</td>
+                              <td>${btn}</td>
+                            </tr>
+                        `;
+
                         $('#tblRolesListBody').append(tableData);
                     }
                 }
@@ -101,6 +92,7 @@
             GetExtensionList(clickedRoleId)
         }
     });
+
     $(document).on("click", "#addBtn", function () {
         var roleId = clickedRoleId;
         var fileTypeIds = $("#multiple-select").val();
@@ -116,7 +108,7 @@
             url: "https://localhost:7134/" + "api/General/AssignExtensions",
             type: "POST",
             data: formData,
-            contentType: false,
+            contentType: false,             
             processData: false,
             success: function (response) {
                 if (response.StatusCode == 200) {
@@ -132,24 +124,99 @@
             }
         })
     });
-    $(document).on("click", ".toggle-details", function () {      
-        var roleId = $(this).closest("tr").data("roleid");
-        $.ajax({
-            url: "https://localhost:7134/" + "api/General/GetAssignedExtensionData",
-            type: "GET",
-            data: { RoleId: roleId }, 
-            success: function (response) {
-                if (response.StatusCode == 200) {
-                    Swal.fire('Successful', response.Message, 'success');
-                }
-                else {
-                    Swal.fire('Warning', response.Message, 'error');
-                }
 
-            },
-            error: function (error) {
-                console.warn(error)
-            }
-        })
-    })
+    $(document).on('click', '.get-details', function () {
+        const $clickedBtn = $(this);
+        const $clickedArrow = $clickedBtn.find('.arrow');
+        const $tr = $clickedBtn.closest('tr');
+        const roleId = $tr.data('roleid');
+
+        // Remove any existing detail rows first
+        $('.detail-row').remove();
+
+        if ($clickedArrow.text() === '▶') {
+            // Reset all arrows to right
+            $('.arrow').text('▶');
+
+            // Set clicked arrow down
+            $clickedArrow.text('▼');
+
+            // 🔹 Call the API to get assigned extensions
+            $.ajax({
+                url: "https://localhost:7134/api/General/GetAssignedExtensionData",
+                type: "GET",
+                data: { RoleId: roleId },
+                success: function (response) {
+                    console.log("API Response:", response); // 🔹 debug
+
+                    let extensions = [];
+
+                    // 1️⃣ Check where the array is in response
+                    if (Array.isArray(response.Result)) {
+                        extensions = response.Result;
+                    } else if (response.Result && Array.isArray(response.Result.Extensions)) {
+                        extensions = response.Result.Extensions;
+                    }
+
+                    if (extensions.length === 0) {
+                        // No extensions found — show message
+                        const noDataHtml = `
+                        <tr class="detail-row">
+                            <td colspan="7">
+                                <div style="padding: 10px; background: #f9f9f9; color: #777;">
+                                    No extensions found for this role.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                        $tr.after(noDataHtml);
+                        return;
+                    }
+
+                    // 2️⃣ Build HTML safely
+                    let detailsHtml = '';
+                    extensions.forEach(ext => {
+                        // Handle both camelCase or PascalCase
+                        const name = ext.ExtensionName || ext.extensionName || "Unknown";
+                        const isActive = (ext.IsActive !== undefined) ? ext.IsActive : (ext.isActive || false);
+
+
+                        detailsHtml += `
+                        <tr class="detail-row">
+                            <td colspan="7">
+                                <div style="padding: 10px; background: #f9f9f9; display: flex; justify-content: space-between;">
+                                    <span>${name}</span>
+                                    <span style="color: ${isActive ? 'green' : 'red'};">
+                                        ${isActive ? 'Active' : 'Inactive'}
+                                    </span>
+
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    });
+
+                    // Add all details below the clicked row
+                    $tr.after(detailsHtml);
+                },
+                error: function (error) {
+                    console.error("Error fetching assigned extensions:", error);
+                    const errorHtml = `
+                    <tr class="detail-row">
+                        <td colspan="7">
+                            <div style="padding: 10px; background: #ffecec; color: #d00;">
+                                Failed to load extensions. Please try again later.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                    $tr.after(errorHtml);
+                }
+            });
+        } else {
+            // Collapse arrow back to right
+            $clickedArrow.text('▶');
+        }
+    });
+
 });

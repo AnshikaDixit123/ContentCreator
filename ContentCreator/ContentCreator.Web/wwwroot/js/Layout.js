@@ -13,4 +13,15 @@
             location.href = "https://localhost:7024/account/enduserlogin";
         }
     })
+    $(document).ready(function () {
+        // Get the current path in lowercase
+        var path = document.location.pathname.toLowerCase();
+
+        // Show content button only on /login page
+        if (path.endsWith("/dashboard") || path.endsWith("/uploadcontent")) {
+            $("#content").removeClass('d-none');
+        }
+
+    });
+
 })

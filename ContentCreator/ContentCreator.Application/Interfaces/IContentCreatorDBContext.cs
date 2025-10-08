@@ -12,6 +12,7 @@ namespace ContentCreator.Application.Interfaces
         DbSet<City> City { get; set; }
         DbSet<AllowedFileTypesAndExtensions> AllowedFileTypesAndExtensions { get; set; }
         DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; set; }
+        DbSet<PostedContent> PostedContent { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

@@ -100,6 +100,7 @@ namespace ContentCreator.Api
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IGeneralService, GeneralService>();
             builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<IContentService, ContentService>();
             builder.Services.AddScoped<ITokenRevocationConfig, TokenRevocationConfig>();
 
             builder.Services.AddDistributedMemoryCache();

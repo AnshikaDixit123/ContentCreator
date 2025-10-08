@@ -222,7 +222,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Result = true;
             }
             
-            return response;
+            return response;          
         }
         public async Task<ResponseData<List<AssignedExtensionResponseModel>>> GetAssignedExtensionDataAsync(Guid RoleId, CancellationToken cancellation)
         {

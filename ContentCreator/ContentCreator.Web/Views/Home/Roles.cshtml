@@ -16,7 +16,16 @@
         z-index: 1040;
     }
 
+    .arrow {
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+
+    .arrow.rotate {
+        transform: rotate(90deg); /* Points down */
+    }
 </style>
+
 <div class="container my-5">
     <div class="card shadow-sm p-4">
         <h4 class="mb-4">Roles</h4>
