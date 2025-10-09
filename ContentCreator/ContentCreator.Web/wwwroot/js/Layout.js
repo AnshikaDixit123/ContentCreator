@@ -16,12 +16,20 @@
     $(document).ready(function () {
         // Get the current path in lowercase
         var path = document.location.pathname.toLowerCase();
-
+        const adminPaths = [
+            "/allusers",
+            "/createuser",
+            "/region",
+            "/roles",
+            "/fileextensions" 
+        ];
         // Show content button only on /login page
         if (path.endsWith("/dashboard") || path.endsWith("/uploadcontent")) {
             $("#content").removeClass('d-none');
         }
-
+        else if (adminPaths.some(p => path.endsWith(p))) {
+            $("#superAdmin").removeClass('d-none');
+        }
     });
 
 })

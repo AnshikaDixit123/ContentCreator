@@ -1,4 +1,5 @@
-﻿using ContentCreator.Application.Common.DTOs.RequestDTOs;
+﻿using Azure.Core;
+using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
 using ContentCreator.Domain.Entities.Identity;
@@ -24,6 +25,12 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 UserId = request.UserId,
                 PostDescription = request.PostDescription,
                 MediaUrl = request.FilePath,
+                IsPublic = request.Visibility == "public",
+                IsPrivate = request.Visibility == "private",
+                IsSubscribed = request.Visibility == "subscribed"
+                //IsPublic = request.IsPublic,
+                //IsPrivate = request.IsPrivate,
+                //IsSubscribed = request.IsSubscribed
             };
             _context.PostedContent.Add(postEntity);
             await _context.SaveChangesAsync(cancellation);

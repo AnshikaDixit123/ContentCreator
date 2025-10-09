@@ -45,6 +45,10 @@ namespace ContentCreator.Api.Controllers
                     PostDescription = request.PostDescription,
                     FileName = fileName,
                     FilePath = relativePath,
+                    Visibility = request.Visibility
+                    //IsPublic = request.IsPublic,
+                    //IsPrivate = request.IsPrivate,
+                    //IsSubscribed = request.IsSubscribed
                 };
                 response = await _contentService.UploadAPostAsync(serviceRequest, cancellation);
             }

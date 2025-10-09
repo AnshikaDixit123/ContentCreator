@@ -283,7 +283,67 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 };
                 await _context.AllowedFileTypesAndExtensions.AddRangeAsync(fileTypeAndExtension1,fileTypeAndExtension2,fileTypeAndExtension3);
                 await _context.SaveChangesAsync();
+
+
             }
+            if (!await _context.EmailTemplates.AnyAsync())
+            {
+                _context.EmailTemplates.AddRange(new List<EmailTemplates>
+                {
+                    new EmailTemplates
+                    {
+                        Subject = "Account Creation",
+                        Body = @"
+                                <html xmlns='http://www.w3.org/1999/xhtml'>
+                                <head><title></title></head>
+                                <body>
+                                <img src='https://trucastsolutions.com/wp-content/uploads/2019/09/trucast-logo.png' /><br />
+                                <br />
+                                <div style='border-top: 3px solid #22BCE5'>&nbsp;</div>
+                                <span style='font-family: Arial; font-size: 10pt'>
+                                	                Dear <b>{UserName}</b>,<br />
+                                <br />
+                                	                {EmailMessage}<br />
+                                <br />
+                                	                Thank you for choosing <b>ContentCreator</b>.<br />
+                                <br />
+                                	                Best regards,<br />
+                                <b>Team ContentCreator</b>
+                                </span>
+                                </body>
+                                </html>"
+                    },
+                    new EmailTemplates
+                    {
+                        Subject = "Password Reset OTP for Your ContentCreator Account",
+                        Body = @"
+                                <html xmlns='http://www.w3.org/1999/xhtml'>
+                                <head><title></title></head>
+                                <body>
+                                <img src='https://trucastsolutions.com/wp-content/uploads/2019/09/trucast-logo.png' /><br />
+                                <br />
+                                <div style='border-top: 3px solid #22BCE5'>&nbsp;</div>
+                                <span style='font-family: Arial; font-size: 10pt'>
+                                	                Dear <b>{UserName}</b>,<br />
+                                <br />
+                                	                {EmailMessage}<br />
+                                <br />
+                                <b>{OTP}</b><br />
+                                <br />
+                                	                This OTP is valid for the next 15 minutes. If you did not request a password reset, please ignore this email or contact our support team immediately.<br />
+                                <br />
+                                	                Thank you for choosing <b>ContentCreator</b>.<br />
+                                <br />
+                                	                Best regards,<br />
+                                <b>Team ContentCreator</b>
+                                </span>
+                                </body>
+                                </html>"
+                    }
+                });
+                await _context.SaveChangesAsync();
+            }
+
         }
     }
 }

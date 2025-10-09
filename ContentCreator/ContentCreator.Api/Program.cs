@@ -102,6 +102,7 @@ namespace ContentCreator.Api
             builder.Services.AddScoped<IHomeService, HomeService>();
             builder.Services.AddScoped<IContentService, ContentService>();
             builder.Services.AddScoped<ITokenRevocationConfig, TokenRevocationConfig>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddDistributedMemoryCache();
 

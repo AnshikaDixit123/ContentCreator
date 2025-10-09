@@ -15,10 +15,14 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                localStorage.setItem("UserId", response.Result.UserId)
-                localStorage.setItem("UserToken", response.Result.UserToken)
-                localStorage.setItem("RoleType", response.Result.RoleType)
-                location.href = "/home/myprofile";
+                if (response.StatusCode === 200) {
+                    localStorage.setItem("UserId", response.Result.UserId);
+                    localStorage.setItem("UserToken", response.Result.UserToken);
+                    localStorage.setItem("RoleType", response.Result.RoleType);
+                    location.href = "/home/myprofile";
+                } else {
+                    Swal.fire('Error', response.Message || 'Invalid credentials!', 'error');
+                }
             },
             error: function (error) {
                 Swal.fire('Error', 'Something went wrong!', 'error');

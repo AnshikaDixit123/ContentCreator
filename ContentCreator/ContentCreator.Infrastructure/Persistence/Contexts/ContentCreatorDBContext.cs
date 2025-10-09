@@ -15,6 +15,7 @@ namespace ContentCreator.Infrastructure.Persistence.Contexts
         public DbSet<AllowedFileTypesAndExtensions> AllowedFileTypesAndExtensions { get; set; }
         public DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; set; }
         public DbSet<PostedContent> PostedContent { get; set; }
+        public DbSet<EmailTemplates> EmailTemplates { get; set; }
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => base.SaveChangesAsync(cancellationToken);
 

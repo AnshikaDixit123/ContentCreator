@@ -13,6 +13,7 @@ namespace ContentCreator.Application.Interfaces
         DbSet<AllowedFileTypesAndExtensions> AllowedFileTypesAndExtensions { get; set; }
         DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; set; }
         DbSet<PostedContent> PostedContent { get; set; }
+        DbSet<EmailTemplates> EmailTemplates { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

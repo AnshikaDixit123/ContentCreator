@@ -24,13 +24,15 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _configuration;
-        public AccountService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, IDbConnection dbConnection, RoleManager<ApplicationRole> roleManager, IConfiguration configuration)
+        private readonly IEmailService _emailService;
+        public AccountService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, IDbConnection dbConnection, RoleManager<ApplicationRole> roleManager, IConfiguration configuration, IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
             _dbConnection = dbConnection;
             _roleManager = roleManager;
             _configuration = configuration;
+            _emailService = emailService;
         }
         public async Task<ResponseData<LoginResponseModel>> AuthenticateLoginAsync(SigningRequest request, string RoleType, CancellationToken cancellation)
         {
@@ -134,6 +136,10 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, Roles.User.ToString()); // assign default role
+
+                string emailMsg = "We are pleased to inform you that your account creation process successfully completed on " + DateTime.Now.Date.ToString("yyyy-MM-dd") + " at " + DateTime.Now.ToString("HH:mm:ss tt") + ".";
+                await _emailService.SendEmailMessageAsync(request.Email, "Account Creation", emailMsg, "0", "User");
+
                 response.StatusCode = 200;
                 response.Message = "User registered successfully";
                 response.Result = true;
