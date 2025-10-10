@@ -55,6 +55,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 if (roleName != null)
                 {
                     var role = await _roleManager.FindByNameAsync(roleName);
+                    
                     if(role.RoleType == RoleType)
                     {
                         response.Message = "Invalid password";
@@ -68,6 +69,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                             loginResponse.UserId = user.Id;
                             loginResponse.UserRole = role.Name;
                             loginResponse.RoleType = role.RoleType;
+                            loginResponse.RoleId = role.Id;
                             loginResponse.UserPhoneNumber = user.PhoneNumber;
                             loginResponse.UserToken = tokenString;
                             response.Message = "Login sucessfully";

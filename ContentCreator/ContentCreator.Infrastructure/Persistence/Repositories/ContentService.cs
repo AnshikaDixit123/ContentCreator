@@ -42,5 +42,33 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
+
+        public async Task<ResponseData<List<AllowedExtensionToCreatorResponseModel>>> GetAllowedExtensionToCreatorAsync(Guid RoleId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<AllowedExtensionToCreatorResponseModel>>();
+            response.Message = "Couldn't able to get the extension as per assigned";
+
+            var getExtensions = await _context.AllowedExtensionOnRoles.Where(x => x.RoleId == RoleId).Select(x => x.FileTypeId).ToListAsync();
+            if (getExtensions.Any())
+            {
+                var getExtensionDetails = await _context.AllowedFileTypesAndExtensions.Where(x => getExtensions.Contains(x.Id))
+                .Select(x => new AllowedExtensionToCreatorResponseModel
+                {
+                   FileTypeId = x.Id,
+                   FileExtension = x.FileExtension,
+                   MinimumSize = x.MinimumSize ?? 0,
+                   MaximumSize = x.MaximumSize ?? 0
+                })
+                .ToListAsync(cancellation);
+                if(getExtensionDetails.Any())
+                {
+                    response.StatusCode = 200;
+                    response.Message = "Allowed extensions fetched successfully";
+                    response.Result = getExtensionDetails;
+                    response.IsSuccess = true;
+                }
+            }
+            return response;
+        }
     }
 }

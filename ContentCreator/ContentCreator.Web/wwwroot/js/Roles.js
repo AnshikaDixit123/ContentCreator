@@ -177,7 +177,7 @@
                     let detailsHtml = '';
                     extensions.forEach(ext => {
                         // Handle both camelCase or PascalCase
-                        const name = ext.ExtensionName || ext.extensionName || "Unknown";
+                        const name = ext.Extension || ext.extension || "Unknown";
                         const isActive = (ext.IsActive !== undefined) ? ext.IsActive : (ext.isActive || false);
 
 

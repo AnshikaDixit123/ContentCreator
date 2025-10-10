@@ -2,7 +2,84 @@
     ViewData["Title"] = "UploadContent";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<style>
+    .upload-content-section {
+        background-color: #ffffff;
+        border-radius: 0.5rem;
+        max-width: 700px;
+        margin: 1rem auto;
+    }
 
+    .post-options {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin: 10px 0 20px;
+        gap: 10px;
+    }
+
+    .post-options label {
+        font-weight: 500;
+    }
+
+    .post-options select {
+        width: auto;
+    }
+    .post-card {
+        max-width: 600px;
+        margin: 20px auto;
+        border-radius: 16px;
+        background: #fff;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .create-post-card textarea {
+        border-radius: 10px;
+        resize: none;
+    }
+    #filePreview img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+</style>
+<div class="upload-content-section card shadow-sm p-4">
+    <h4 class="mb-3">Create Post</h4>
+
+    <!-- Post Description -->
+    <div class="create-post-card">
+        <h5 class="mb-3">Create a New Post</h5>
+        <form id="postForm">
+            <!-- Post text -->
+            <textarea class="form-control mb-3" id="postContent" rows="3" placeholder="What's on your mind?" required></textarea>
+
+            <!-- Upload file -->
+            <input type="file" class="form-control mb-3" id="mediaFile" accept="image/*,video/*">
+
+            <!-- Preview -->
+            <div id="preview" class="mb-3"></div>
+
+            <!-- Visibility Option -->
+            <div class="post-options">
+                <label for="visibility" class="form-label">Visibility:</label>
+                <select class="form-select form-select-sm" id="visibility">
+                    <option value="public">🌍 Public</option>
+                    <option value="private">🔒 Private</option>
+                    <option value="subscribed">⭐ Subscribed Only</option>
+                </select>
+            </div>
+
+            <!-- Post Button -->
+            <button type="button" id="btnforPost" class="btn btn-success w-100">Post</button>
+        </form>
+    </div>
+</div>
+
+
+@* 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,77 +225,6 @@
 
     <!-- Feed -->
     <div id="feed"></div>
-
-    <script>
-        const form = document.getElementById("postForm");
-        const preview = document.getElementById("preview");
-        const mediaFile = document.getElementById("mediaFile");
-        const feed = document.getElementById("feed");
-        const visibility = document.getElementById("visibility");
-
-        let fileData = "";
-
-        // Preview image/video
-        mediaFile.addEventListener("change", function (event) {
-          preview.innerHTML = "";
-          let file = event.target.files[0];
-
-          if (file) {
-            let reader = new FileReader();
-            reader.onload = function (e) {
-              fileData = e.target.result;
-              if (file.type.startsWith("image")) {
-                preview.innerHTML = `<img src="${fileData}" alt="Preview">`;
-              } else if (file.type.startsWith("video")) {
-                preview.innerHTML = `<video controls><source src="${fileData}"></video>`;
-              }
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-
-        // Create post
-        form.addEventListener("submit", function (e) {
-          e.preventDefault();
-          const text = document.getElementById("postContent").value;
-          const vis = visibility.value;
-          if (!text && !fileData) return;
-
-          const post = document.createElement("div");
-          post.className = "post-card";
-          post.innerHTML = `
-            <div class="post-header">
-              <img src="https://via.placeholder.com/40" alt="user">
-                     <div>
-           <strong>User Name</strong> <br>
-           <small>
-               ${vis === "public" ? "🌍 Public" : vis === "private" ? "🔒 Private" : vis === "subscribed" ? "⭐ Subscribed Only" : ""}
-           </small>
-        </div>
-
-            </div>
-            <p>${text}</p>
-            ${fileData ? (fileData.startsWith("data:video") ?
-              `<video controls><source src="${fileData}"></video>` :
-              `<img src="${fileData}" alt="post">`) : ""}
-            <div class="post-actions">
-              <button>👍 Like</button>
-              <button>💬 Comment</button>
-              <button>↗️ Share</button>
-            </div>
-            <div class="comment-box">
-              <input type="text" placeholder="Write a comment...">
-              <button class="btn btn-sm btn-primary">Send</button>
-            </div>
-          `;
-          feed.prepend(post);
-
-          // Reset
-          form.reset();
-          preview.innerHTML = "";
-          fileData = "";
-        });
-    </script>
 </body>
-</html>
+</html> *@
 <script src="~/js/uploadcontent.js"></script>

@@ -2,6 +2,7 @@
 using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
+using ContentCreator.Domain.Enums;
 using ContentCreator.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -56,6 +57,22 @@ namespace ContentCreator.Api.Controllers
             {
                 response.StatusCode = 500;
                 response.Message = ex.Message;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("GetAllowedExtensionToCreator")]
+        public async Task<IActionResult> GetAllowedExtensionToCreator(Guid RoleId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<AllowedExtensionToCreatorResponseModel>>();
+            try
+            {
+                response = await _contentService.GetAllowedExtensionToCreatorAsync(RoleId, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
             }
             return StatusCode(response.StatusCode, response);
         }

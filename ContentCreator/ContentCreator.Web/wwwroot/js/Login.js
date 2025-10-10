@@ -17,6 +17,7 @@
             success: function (response) {
                 if (response.StatusCode == 200) {
                     localStorage.setItem("UserId", response.Result.UserId)
+                    localStorage.setItem("RoleId", response.Result.RoleId)
                     localStorage.setItem("RoleType", response.Result.RoleType)
                     localStorage.setItem("UserToken", response.Result.UserToken)
                     location.href = "/home/dashboard";
