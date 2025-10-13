@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string PostDescription {  get; set; }
-        public string MediaUrl {  get; set; }
+        public string? MediaUrl {  get; set; }
         public DateTime DatePosted {  get; set; } = DateTime.Now;
         public bool IsPublic {  get; set; } = true;
         public bool IsPrivate {  get; set; } = false;

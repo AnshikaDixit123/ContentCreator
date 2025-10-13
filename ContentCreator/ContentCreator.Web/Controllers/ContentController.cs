@@ -8,5 +8,9 @@ namespace ContentCreator.Web.Controllers
         {
             return View();
         }
+        public IActionResult SocialContent()
+        {
+            return View();
+        }
     }
 }

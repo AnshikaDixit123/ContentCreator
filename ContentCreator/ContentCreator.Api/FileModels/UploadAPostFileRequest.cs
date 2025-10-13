@@ -4,7 +4,8 @@
     {
         public Guid UserId { get; set; }
         public string PostDescription { get; set; }
-        public IFormFile File { get; set; }
+        public IFormFile? File { get; set; }
+        public bool IsStaticFileNeeded { get; set; }
         public string Visibility { get; set; }
         //public bool IsPublic { get; set; } = false;
         //public bool IsPrivate { get; set; } = false;

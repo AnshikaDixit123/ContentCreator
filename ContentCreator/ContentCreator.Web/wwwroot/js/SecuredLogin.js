@@ -7,7 +7,8 @@
 
         var formData = new FormData();
         formData.append('UserNameOrEmail', UserNameOrEmail);
-        formData.append('password', password);
+        formData.append('Password', password); // Capital P
+
         $.ajax({
             url: "https://localhost:7134/" + "api/Authenticate/AuthenticateAdmin",
             type: "POST",

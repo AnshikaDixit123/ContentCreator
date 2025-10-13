@@ -28,30 +28,51 @@ namespace ContentCreator.Api.Controllers
             var response = new ResponseData<bool>();
             try
             {
-                var uploadsFolder = Path.Combine(_env.WebRootPath, "ContentCreator", request.UserId.ToString());
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
+                if (request.IsStaticFileNeeded == true)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "ContentCreator", request.UserId.ToString());
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
 
-                var fileName = $"{Guid.NewGuid()}_{request.File.FileName}";
-                var filePath = Path.Combine(uploadsFolder, fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await request.File.CopyToAsync(stream, cancellation);
+                    var fileName = $"{Guid.NewGuid()}_{request.File.FileName}";
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await request.File.CopyToAsync(stream, cancellation);
+                    }
+                    var relativePath = Path.Combine("ContentCreator", request.UserId.ToString(), fileName)
+                           .Replace("\\", "/");
+                    var serviceRequest = new UploadAPostRequest
+                    {
+                        UserId = request.UserId,
+                        PostDescription = request.PostDescription,
+                        FileName = fileName,
+                        FilePath = relativePath,
+                        Visibility = request.Visibility
+                        //IsPublic = request.IsPublic,
+                        //IsPrivate = request.IsPrivate,
+                        //IsSubscribed = request.IsSubscribed
+                    };
+                    response = await _contentService.UploadAPostAsync(serviceRequest, cancellation);
                 }
-                var relativePath = Path.Combine("ContentCreator", request.UserId.ToString(), fileName)
-                       .Replace("\\", "/");
-                var serviceRequest = new UploadAPostRequest
+                else
                 {
-                    UserId = request.UserId,
-                    PostDescription = request.PostDescription,
-                    FileName = fileName,
-                    FilePath = relativePath,
-                    Visibility = request.Visibility
-                    //IsPublic = request.IsPublic,
-                    //IsPrivate = request.IsPrivate,
-                    //IsSubscribed = request.IsSubscribed
-                };
-                response = await _contentService.UploadAPostAsync(serviceRequest, cancellation);
+                    var fileName = string.Empty;
+                    var relativePath = string.Empty;
+                    var serviceRequest = new UploadAPostRequest
+                    {
+                        UserId = request.UserId,
+                        PostDescription = request.PostDescription,
+                        FileName = fileName,
+                        FilePath = relativePath,
+                        Visibility = request.Visibility
+                        //IsPublic = request.IsPublic,
+                        //IsPrivate = request.IsPrivate,
+                        //IsSubscribed = request.IsSubscribed
+                    };
+                    response = await _contentService.UploadAPostAsync(serviceRequest, cancellation);
+                }
+                
             }
             catch (Exception ex) 
             {
@@ -68,6 +89,21 @@ namespace ContentCreator.Api.Controllers
             try
             {
                 response = await _contentService.GetAllowedExtensionToCreatorAsync(RoleId, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("GetPost")]
+        public async Task<IActionResult> GetPost(CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<GetPostResponseModel>>();
+            try
+            {
+                response = await _contentService.GetPostAsync(cancellation);
             }
             catch (Exception ex)
             {

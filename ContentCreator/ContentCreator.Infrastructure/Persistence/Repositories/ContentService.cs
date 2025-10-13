@@ -46,6 +46,9 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         public async Task<ResponseData<List<AllowedExtensionToCreatorResponseModel>>> GetAllowedExtensionToCreatorAsync(Guid RoleId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<AllowedExtensionToCreatorResponseModel>>();
+            if (RoleId == Guid.Parse("4FF01FAB-90B3-4D90-EF35-08DE0A1A8CAA"))
+                return response;
+
             response.Message = "Couldn't able to get the extension as per assigned";
 
             var getExtensions = await _context.AllowedExtensionOnRoles.Where(x => x.RoleId == RoleId).Select(x => x.FileTypeId).ToListAsync();
@@ -66,7 +69,26 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                     response.Message = "Allowed extensions fetched successfully";
                     response.Result = getExtensionDetails;
                     response.IsSuccess = true;
-                }
+                } 
+            }
+
+            return response;
+        }
+        public async Task<ResponseData<List<GetPostResponseModel>>> GetPostAsync(CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<GetPostResponseModel>>();
+
+            var getPost = await _context.PostedContent.Select(x => new {
+                UserId = x.UserId, 
+                PostDescription = x.PostDescription,
+                Media = x.MediaUrl})
+            .ToListAsync(cancellation);
+            if (getPost.Any())
+            {
+                response.StatusCode = 200;
+                response.Message = "Got post successfully";
+                response.Result = getPost;
+                response.IsSuccess = true;
             }
             return response;
         }

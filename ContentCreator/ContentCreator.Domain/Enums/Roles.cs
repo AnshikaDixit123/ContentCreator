@@ -5,7 +5,7 @@
         //these are the default roles, if you are doing any changes in the future do it mindfully as these roles are registered in the DB.
         SuperAdmin,
         User,
-        Programmer,
+        Writer,
         Photographer,
         Videographer,
         Singer

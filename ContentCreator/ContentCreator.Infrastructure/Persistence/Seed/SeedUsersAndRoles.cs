@@ -35,9 +35,9 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
             //Programmer
 
-            if (!await roleManager.RoleExistsAsync(Roles.Programmer.ToString()))
+            if (!await roleManager.RoleExistsAsync(Roles.Writer.ToString()))
             {
-                var role = new ApplicationRole { Name = Roles.Programmer.ToString(), RoleDescription = "Role for Programmer" };
+                var role = new ApplicationRole { Name = Roles.Writer.ToString(), RoleDescription = "Role for Programmer" };
 
                 await roleManager.CreateAsync(role);
             }
@@ -120,14 +120,14 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
                 }
             }
 
-            // Create Programmer if not already created
+            // Create writer if not already created
 
             if (await userManager.FindByNameAsync("Arnav") == null)
             {
-                var programmer = new ApplicationUser
+                var writer = new ApplicationUser
                 {
-                    UserName = "Programmer",
-                    Email = "programmer@gmail.com",
+                    UserName = "Writer",
+                    Email = "writer@gmail.com",
                     PhoneNumber = "9876543212",
                     FirstName = "Arnav",
                     LastName = "Singh",
@@ -137,11 +137,11 @@ namespace ContentCreator.Infrastructure.Persistence.Seed
 
                 var userPassword = "Pass@123";
 
-                var chkUser = await userManager.CreateAsync(programmer, userPassword);
+                var chkUser = await userManager.CreateAsync(writer, userPassword);
 
                 if (chkUser.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(programmer, Roles.Programmer.ToString());
+                    await userManager.AddToRoleAsync(writer, Roles.Writer.ToString());
                 }
             }
 

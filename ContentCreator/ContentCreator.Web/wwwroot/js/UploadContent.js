@@ -1,6 +1,13 @@
 ﻿$(document).ready(function () {
     const roleId = localStorage.getItem("RoleId");
     let allowedExtensions = [];
+    var isStaticFileNeeded = true;
+    if (roleId && roleId.trim().toUpperCase() === "4FF01FAB-90B3-4D90-EF35-08DE0A1A8CAA") {
+        $("#mediaSection").addClass("d-none");
+        isStaticFileNeeded = false;
+    } else {
+        $("#mediaSection").removeClass("d-none");
+    }
     $(document).on("click", "#btnforPost", function () {
         var userId = localStorage.getItem("UserId"); 
         var postDescription = $("#postContent").val();
@@ -20,7 +27,8 @@
         var formData = new FormData();
         formData.append('UserId', userId);
         formData.append('PostDescription', postDescription);
-        if (mediaFile) formData.append("File", mediaFile);
+        if (mediaFile && isStaticFileNeeded) formData.append("File ", mediaFile);
+        formData.append("IsStaticFileNeeded", isStaticFileNeeded); 
         formData.append("Visibility", visibility);
         //formData.append("IsPublic", IsPublic);
         //formData.append("IsPrivate", IsPrivate);
@@ -50,6 +58,9 @@
     })
     fetchAllowedExtensions();
     function fetchAllowedExtensions() {
+        if (roleId && roleId.trim().toUpperCase() === "4FF01FAB-90B3-4D90-EF35-08DE0A1A8CAA") {
+            return;
+        }
         $.ajax({
             url: "https://localhost:7134/" + "api/Content/GetAllowedExtensionToCreator?RoleId=" + roleId,
             type: "GET",
