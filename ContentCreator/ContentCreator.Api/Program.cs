@@ -39,6 +39,7 @@ namespace ContentCreator.Api
                 options.JsonSerializerOptions.PropertyNamingPolicy = null;
             });
             #endregion
+            builder.Services.AddHttpContextAccessor();
 
             #region JWT Authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -103,6 +104,7 @@ namespace ContentCreator.Api
             builder.Services.AddScoped<IContentService, ContentService>();
             builder.Services.AddScoped<ITokenRevocationConfig, TokenRevocationConfig>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            
 
             builder.Services.AddDistributedMemoryCache();
 

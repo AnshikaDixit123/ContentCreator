@@ -1,25 +1,49 @@
-﻿$(document).ready(function () {
-    var rawHtml = "";
-    for (var i = 1; i <= 2; i++) {
-        rawHtml += `<div class="post-card">
+﻿    $(document).ready(function () {
+        GetPost();
+
+    function GetPost() {
+        var rawHtml = "";
+
+    $.ajax({
+        url: "https://localhost:7134/api/Content/GetPost",
+        type: "GET",
+        success: function (response) {
+                    if (response.StatusCode === 200 && response.Result?.length > 0) {
+                        var posts = response.Result;
+
+        for (var i = 0; i < posts.length; i++) {
+                            var data = posts[i];
+
+        rawHtml += `
+        <div class="post-card">
             <div class="post-header">
-                <img src="~/image/app-avatar-default.png" alt="User" class="post-avatar">
-                <span class="post-username">${i}</span>
+                <img src="/image/app-avatar-default.png" alt="User" class="post-avatar">
+                    <span class="post-username">${data.UserName || "Unknown User"}</span>
+            </div>
+            <div class="post-caption">
+                ${data.PostDescription || ""}
             </div>
             <div class="post-media">
-                <img src="~/image/sample1.jpg" alt="Post Image">
+                ${data.Media ? `<img src="${data.Media}" alt="Post Image">` : ""}
             </div>
             <div class="post-actions">
                 <i class="fa-regular fa-heart"></i>
                 <i class="fa-regular fa-comment"></i>
                 <i class="fa-regular fa-paper-plane"></i>
             </div>
-            <div class="post-caption">
-                <strong>nightingale1402</strong> enjoying the moment 💖✨
-            </div>
         </div>`;
-        if (i == 2) {
-            $('#postSection').html(rawHtml);
-        }
+                        }
+
+    // Append all posts at once
+    $('#postSection').html(rawHtml);
+                } else {
+        $('#postSection').html("<p style='text-align:center;color:#777;'>No posts found.</p>");
+                }
+            },
+    error: function (error) {
+        console.warn(error);
+    Swal.fire('Error', 'Could not load posts', 'error');
+            }
+        });
     }
-})
+});

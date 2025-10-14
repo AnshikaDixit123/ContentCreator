@@ -11,9 +11,15 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
     public class ContentService : IContentService
     {
         private readonly IContentCreatorDBContext _context;
-        public ContentService(IContentCreatorDBContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ContentService(IContentCreatorDBContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<ResponseData<bool>> UploadAPostAsync(UploadAPostRequest request, CancellationToken cancellation)
         {
@@ -66,6 +72,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 if(getExtensionDetails.Any())
                 {
                     response.StatusCode = 200;
+
                     response.Message = "Allowed extensions fetched successfully";
                     response.Result = getExtensionDetails;
                     response.IsSuccess = true;
@@ -78,19 +85,43 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         {
             var response = new ResponseData<List<GetPostResponseModel>>();
 
-            var getPost = await _context.PostedContent.Select(x => new {
-                UserId = x.UserId, 
-                PostDescription = x.PostDescription,
-                Media = x.MediaUrl})
-            .ToListAsync(cancellation);
+            string scheme = _httpContextAccessor.HttpContext.Request.Scheme;
+            string host = _httpContextAccessor.HttpContext.Request.Host.Value;
+            string hostedUrl = $"{scheme}://{host}/";
+
+            var getPost = await _context.PostedContent
+                .Select(x => new GetPostResponseModel
+                {
+                    UserId = x.UserId,
+                    PostDescription = x.PostDescription,
+                    Media = !string.IsNullOrEmpty(x.MediaUrl)
+                        ? Path.Combine(hostedUrl, x.MediaUrl.Replace("\\", "/"))
+                        : null
+                })
+                        .ToListAsync(cancellation);
+
             if (getPost.Any())
             {
+                foreach (var post in getPost)
+                {
+                    var user = await _userManager.FindByIdAsync(post.UserId.ToString());
+                    post.UserName = user?.UserName ?? "Unknown User";
+                }
                 response.StatusCode = 200;
-                response.Message = "Got post successfully";
+                response.Message = "Got posts successfully";
                 response.Result = getPost;
                 response.IsSuccess = true;
             }
+            else
+            {
+                response.StatusCode = 404;
+                response.Message = "No posts found";
+                response.Result = new List<GetPostResponseModel>();
+                response.IsSuccess = false;
+            }
+
             return response;
         }
+
     }
 }
