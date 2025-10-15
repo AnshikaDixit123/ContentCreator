@@ -217,7 +217,8 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Message = "success";
                 response.IsSuccess = true;
             }
-            response.Result = stateList;
+            response.Result = stateList; 
+
             return response;
         }
 

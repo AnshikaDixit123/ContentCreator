@@ -2,7 +2,7 @@
     ViewData["Title"] = "SocialContent";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<link href="~/css/socialcontent.css" rel="stylesheet" />
 <div class="social-wrapper">
     <!-- Left Sidebar -->
     <div class="left-sidebar">
@@ -18,58 +18,22 @@
 
     <!-- Center Feed -->
     <div class="feed-container" id="postSection">
-        <!-- Post 1 -->
-       @*  <div class="post-card">
-            <div class="post-header">
-                <img src="~/image/app-avatar-default.png" alt="User" class="post-avatar">
-                <span class="post-username">nightingale1402</span>
-            </div>
-            <div class="post-media">
-                <img src="~/image/sample1.jpg" alt="Post Image">
-            </div>
-            <div class="post-actions">
-                <i class="fa-regular fa-heart"></i>
-                <i class="fa-regular fa-comment"></i>
-                <i class="fa-regular fa-paper-plane"></i>
-            </div>
-            <div class="post-caption">
-                <strong>nightingale1402</strong> enjoying the moment 💖✨
-            </div>
-        </div>
-
-        <!-- Post 2 -->
-        <div class="post-card">
-            <div class="post-header">
-                <img src="~/image/app-avatar-default.png" alt="User" class="post-avatar">
-                <span class="post-username">kashyappriya</span>
-            </div>
-            <div class="post-media">
-                <img src="~/image/sample2.jpg" alt="Post Image">
-            </div>
-            <div class="post-actions">
-                <i class="fa-regular fa-heart"></i>
-                <i class="fa-regular fa-comment"></i>
-                <i class="fa-regular fa-paper-plane"></i>
-            </div>
-            <div class="post-caption">
-                <strong>kashyappriya</strong> another beautiful evening 🌆
-            </div>
-        </div>
-    </div> *@
+        <!-- Dynamic posts will be loaded here via JS -->
+    </div>
 
     <!-- Right Sidebar -->
     <div class="right-sidebar">
         <div class="suggestions">
             <h5>Suggested for you</h5>
             <div class="suggested-user">
-                <img src="~/image/app-avatar-default.png" alt="">
+                <img src="@Url.Content("~/image/app-avatar-default.png")" alt="User Avatar">
                 <div>
                     <p class="name">ilove44383</p>
                     <button>Follow</button>
                 </div>
             </div>
             <div class="suggested-user">
-                <img src="~/image/app-avatar-default.png" alt="">
+                <img src="@Url.Content("~/image/app-avatar-default.png")" alt="User Avatar">
                 <div>
                     <p class="name">kavyashree</p>
                     <button>Follow</button>
@@ -78,155 +42,7 @@
         </div>
     </div>
 </div>
-<script src="~/js/socialcontent.js"></script>
-<style>
-    body {
-        background-color: #fafafa !important;
-        color: #000;
-    }
 
-    .social-wrapper {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        padding: 2rem;
-    }
+<script src="@Url.Content("~/js/socialcontent.js")"></script>
 
-    .left-sidebar, .right-sidebar {
-        width: 250px;
-        height: fit-content;
-        position: sticky;
-        top: 80px;
-    }
 
-        .left-sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .left-sidebar li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 0;
-            font-size: 1rem;
-            cursor: pointer;
-            color: #555;
-            transition: color 0.2s;
-        }
-
-            .left-sidebar li:hover {
-                color: #000;
-            }
-
-    .feed-container {
-        width: 100%;
-        max-width: 600px;
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .post-card {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .post-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 15px;
-    }
-
-    .post-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-    }
-
-    .post-username {
-        font-weight: 600;
-        color: #222;
-    }
-
-    .post-media img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-    }
-
-    .post-actions {
-        display: flex;
-        gap: 15px;
-        font-size: 1.4rem;
-        padding: 10px 15px;
-        color: #444;
-    }
-
-        .post-actions i {
-            cursor: pointer;
-            transition: transform 0.2s, color 0.2s;
-        }
-
-            .post-actions i:hover {
-                transform: scale(1.2);
-                color: #111;
-            }
-
-    .post-caption {
-        padding: 0 15px 15px;
-        font-size: 0.95rem;
-        color: #333;
-    }
-
-    .right-sidebar {
-        width: 250px;
-        color: #333;
-    }
-
-    .suggestions h5 {
-        font-size: 1rem;
-        color: #777;
-        margin-bottom: 1rem;
-    }
-
-    .suggested-user {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 1rem;
-    }
-
-        .suggested-user img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .suggested-user .name {
-            margin: 0;
-            color: #000;
-            font-weight: 500;
-        }
-
-        .suggested-user button {
-            background-color: transparent;
-            color: #0095f6;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-        } 
-
-            .suggested-user button:hover {
-                text-decoration: underline;
-            }
-
-    footer {
-        background-color: #fff !important;
-        color: #777;
-    }
-</style>

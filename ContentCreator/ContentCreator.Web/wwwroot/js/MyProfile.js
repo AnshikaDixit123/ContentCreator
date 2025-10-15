@@ -1,9 +1,9 @@
-﻿$(document).ready(function () {
+﻿  $(document).ready(function () {
     const constUserId = localStorage.getItem("UserId");
     const emptyGuid = "00000000-0000-0000-0000-000000000000";
-    let selectedCountryId = "00000000-0000-0000-0000-000000000000";
-    let selectedStateId = "00000000-0000-0000-0000-000000000000";
-    let selectedCityId = "00000000-0000-0000-0000-000000000000";
+      let selectedCountryId = emptyGuid;
+      let selectedStateId = emptyGuid;
+      let selectedCityId = emptyGuid;
     function GetCountryList(IsSelected) {
         $('#Country').html(`<option selected disabled value="">Select Country</option>`)
         $.ajax({
@@ -75,40 +75,37 @@
             }
         });
     }
-    $(document).on('change', '#State', function () {
-        var stateId = $(this).val();
-        GetCityList(stateId, false);
-    })
-    function GetCityList(stateId, IsSelected) {
-        $('#City').html(`<option selected disabled value="">Select City</option>`)
-        $.ajax({
-            url: "https://localhost:7134/" + "api/Home/GetCity?StateId=" + stateId,
-            type: "GET",
-            success: function (response) {
-                if (response.StatusCode == 200) {
-                    var cityList = response.Result.length;
-                    for (var i = 0; i < cityList; i++) {
-                        var data = response.Result[i];
-                        var selectStr = "";
-                        if (IsSelected) {
-                            if (selectedCityId == data.Id) {
-                                selectStr = "selected"
-                            }
-                        }
-                        var optionHtml = `<option ${selectStr} value="${data.Id}">${data.CityName}</option>`;
-                        $('#City').append(optionHtml);
-                    }
-                }
-                else {
-                    Swal.fire('warning', "Something went wrong", 'warning');
-                }
-            },
-            error: function (error) {
-                console.warn(error)
-                Swal.fire('error', "ERROR", 'error');
-            }
-        });
-    }
+      $(document).on('change', '#State', function () {
+          var stateId = $(this).val();
+          var countryId = $('#Country').val(); // explicitly get the selected country
+          GetCityList(stateId, countryId, false);
+      });
+
+      function GetCityList(stateId, countryId, IsSelected) {
+          console.log("StateId:", stateId, "CountryId:", countryId);
+          $('#City').html(`<option selected disabled value="">Select City</option>`);
+          $.ajax({
+              url: `https://localhost:7134/api/Home/GetCity?StateId=${stateId}&CountryId=${countryId}`,
+              type: "GET",
+              success: function (response) {
+                  if (response.StatusCode == 200) {
+                      var cityList = response.Result.length;
+                      for (var i = 0; i < cityList; i++) {
+                          var data = response.Result[i];
+                          var selectStr = IsSelected && selectedCityId == data.Id ? "selected" : "";
+                          $('#City').append(`<option ${selectStr} value="${data.Id}">${data.CityName}</option>`);
+                      }
+                  } else {
+                      Swal.fire('warning', "Something went wrong", 'warning');
+                  }
+              },
+              error: function (error) {
+                  console.warn(error);
+                  Swal.fire('error', "ERROR", 'error');
+              }
+          });
+      }
+
     GetMyProfile()
     function GetMyProfile() {
         $.ajax({

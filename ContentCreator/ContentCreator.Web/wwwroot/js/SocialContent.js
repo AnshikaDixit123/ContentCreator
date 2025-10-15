@@ -1,6 +1,5 @@
 ﻿    $(document).ready(function () {
-        GetPost();
-
+     GetPost();
     function GetPost() {
         var rawHtml = "";
 
@@ -24,7 +23,14 @@
                 ${data.PostDescription || ""}
             </div>
             <div class="post-media">
-                ${data.Media ? `<img src="${data.Media}" alt="Post Image">` : ""}
+                ${data.Media ? `
+        <img src="${data.Media}" alt="Post Image" class="post-image" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <video controls preload="metadata" class="post-video" style="display:none;">
+            <source src="${data.Media}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    ` : ""}
             </div>
             <div class="post-actions">
                 <i class="fa-regular fa-heart"></i>

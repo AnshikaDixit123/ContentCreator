@@ -24,7 +24,7 @@
             "/fileextensions" 
         ];
         // Show content button only on /login page
-        if (path.endsWith("/dashboard") || path.endsWith("/uploadcontent")) {
+        if (path.endsWith("/dashboard") || path.endsWith("/uploadcontent") || path.endsWith("/socialcontent")) {
             $("#content").removeClass('d-none');
         }
         else if (adminPaths.some(p => path.endsWith(p))) {

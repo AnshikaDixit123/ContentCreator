@@ -5,6 +5,8 @@ using ContentCreator.Application.Interfaces;
 using ContentCreator.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+
 
 namespace ContentCreator.Infrastructure.Persistence.Repositories
 {
