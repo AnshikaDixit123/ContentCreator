@@ -102,25 +102,31 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 })
                         .ToListAsync(cancellation);
 
-            if (getPost.Any())
-            {
-                foreach (var post in getPost)
+            List<Guid> userIds = getPost.Select(x => x.UserId).Distinct().ToList();
+
+            // Step 3: Fetch users in one go
+            var users = await _userManager.Users
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new { u.Id, u.UserName })
+                .ToListAsync(cancellation);
+
+            // Step 4: Project posts (no foreach)
+            getPost = getPost
+                .Select(p => new GetPostResponseModel
                 {
-                    var user = await _userManager.FindByIdAsync(post.UserId.ToString());
-                    post.UserName = user?.UserName ?? "Unknown User";
-                }
-                response.StatusCode = 200;
-                response.Message = "Got posts successfully";
-                response.Result = getPost;
-                response.IsSuccess = true;
-            }
-            else
-            {
-                response.StatusCode = 404;
-                response.Message = "No posts found";
-                response.Result = new List<GetPostResponseModel>();
-                response.IsSuccess = false;
-            }
+                    UserId = p.UserId,
+                    PostDescription = p.PostDescription,
+                    Media = p.Media,
+                    LikeCount = p.LikeCount,
+                    UserName = users.FirstOrDefault(u => u.Id == p.UserId)?.UserName ?? "Unknown User"
+                })
+                .ToList();
+
+            // Step 5: Prepare response
+            response.StatusCode = 200;
+            response.Message = "Got posts successfully";
+            response.Result = getPost;
+            response.IsSuccess = true;
 
             return response;
         }

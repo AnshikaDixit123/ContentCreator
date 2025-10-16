@@ -6,5 +6,6 @@
         public string UserName { get; set; }
         public string PostDescription { get; set; }
         public string Media { get; set; }
+        public int LikeCount { get; set; }
     }
 }

@@ -33,7 +33,8 @@
     ` : ""}
             </div>
             <div class="post-actions">
-                <i class="fa-regular fa-heart"></i>
+                <i class="fa-regular fa-heart" id="postLikes"></i>
+                <span class="like-count">${data.LikeCount}</span>
                 <i class="fa-regular fa-comment"></i>
                 <i class="fa-regular fa-paper-plane"></i>
             </div>

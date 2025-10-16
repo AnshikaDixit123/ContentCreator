@@ -19,7 +19,7 @@
                     localStorage.setItem("UserId", response.Result.UserId);
                     localStorage.setItem("UserToken", response.Result.UserToken);
                     localStorage.setItem("RoleType", response.Result.RoleType);
-                    location.href = "/home/myprofile";
+                    location.href = "/content /socialcontent";
                 } else {
                     Swal.fire('Error', response.Message || 'Invalid credentials!', 'error');
                 }

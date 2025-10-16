@@ -10,5 +10,6 @@
         public bool IsPublic {  get; set; } = true;
         public bool IsPrivate {  get; set; } = false;
         public bool IsSubscribed {  get; set; } = false;
+        public int LikeCount {  get; set; } = 0;
     }
 }
