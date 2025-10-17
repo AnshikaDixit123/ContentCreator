@@ -10,6 +10,11 @@
     align-items: flex-start; /* top align sidebars */
 }
 
+.liked {
+    color: red; /* turns red when liked */
+}
+
+
 .left-sidebar, .right-sidebar {
     width: 250px;
     height: fit-content;

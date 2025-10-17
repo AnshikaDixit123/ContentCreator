@@ -130,6 +130,33 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
+        public async Task<ResponseData<bool>> PostLikesAsync(PostLikesRequestModel request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "Post unliked";
+
+            var getPost = await _context.PostedContent.Where(x => x.Id == request.PostId).FirstOrDefaultAsync();
+            if(getPost != null)
+            {
+                var existingLike = await _context.PostLikes.FirstOrDefaultAsync(x => x.PostId == request.PostId && x.UserId == request.UserId, cancellation);
+                if (existingLike == null)
+                {
+                    var like = new PostLikes();
+                    like.PostId = request.PostId;
+                    like.UserId = request.UserId;
+                    like.LikedAt = request.LikedAt;
+                    like.IsLiked = request.IsLiked;
+                    _context.PostLikes.Add(like);
+                }
+                await _context.SaveChangesAsync(cancellation);
+                response.StatusCode = 200;
+                response.Message = "Post liked successfully";
+                response.Result = true;
+                response.IsSuccess = true;
+            }
+
+            return response;
+        }
 
     }
 }

@@ -14,6 +14,7 @@ namespace ContentCreator.Application.Interfaces
         DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; set; }
         DbSet<PostedContent> PostedContent { get; set; }
         DbSet<EmailTemplates> EmailTemplates { get; set; }
+        DbSet<PostLikes> PostLikes { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

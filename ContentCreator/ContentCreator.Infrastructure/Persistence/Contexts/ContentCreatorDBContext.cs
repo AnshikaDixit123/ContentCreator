@@ -16,6 +16,7 @@ namespace ContentCreator.Infrastructure.Persistence.Contexts
         public DbSet<AllowedExtensionOnRoles> AllowedExtensionOnRoles { get; set; }
         public DbSet<PostedContent> PostedContent { get; set; }
         public DbSet<EmailTemplates> EmailTemplates { get; set; }
+        public DbSet<PostLikes> PostLikes { get; set; }
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => base.SaveChangesAsync(cancellationToken);
 

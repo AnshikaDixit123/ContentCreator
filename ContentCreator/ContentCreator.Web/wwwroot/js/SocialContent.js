@@ -1,4 +1,5 @@
-﻿    $(document).ready(function () {
+﻿$(document).ready(function () {
+    const userId = localStorage.getItem("UserId");
      GetPost();
     function GetPost() {
         var rawHtml = "";
@@ -33,7 +34,7 @@
     ` : ""}
             </div>
             <div class="post-actions">
-                <i class="fa-regular fa-heart" id="postLikes"></i>
+                <i class="fa-regular fa-heart" id="postLikes" style="cursor:pointer;"></i>
                 <span class="like-count">${data.LikeCount}</span>
                 <i class="fa-regular fa-comment"></i>
                 <i class="fa-regular fa-paper-plane"></i>
@@ -46,11 +47,49 @@
                 } else {
         $('#postSection').html("<p style='text-align:center;color:#777;'>No posts found.</p>");
                 }
-            },
+        },
+
     error: function (error) {
         console.warn(error);
     Swal.fire('Error', 'Could not load posts', 'error');
             }
         });
     }
+
+    $(document).on("click", "#postLikes", function () {
+        $(this).toggleClass("liked");
+        var postId = $icon.data("postid");
+        if ($(this).hasClass("liked")) {
+            $(this).removeClass("fa-regular").addClass("fa-solid");
+
+            var formdata = new FormData();
+            formdata.append("PostId", postId);
+            formdata.append("UserId", userId);
+            formdata.append("IsLiked", true);
+
+            $.ajax({
+                url: "https://localhost:7134/" + "api/Content/PostLikes",
+                type: "POST",
+                data: formdata,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.StatusCode == 200) {
+                        console.log("Post liked successfully");
+                    }
+                    else {
+                        Swal.fire('Error',"Post Couldn't be liked", 'error');
+                    }
+                },
+                error: function (error) {
+
+                    console.warn(error)
+                    Swal.fire('Error', response.Message, 'error');
+                }
+            });
+        }
+        else {
+            $(this).removeClass("fa-solid").addClass("fa-regular");
+        }
+    });
 });

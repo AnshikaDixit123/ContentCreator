@@ -112,5 +112,20 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
+        [HttpPost("PostLikes")]
+        public async Task<IActionResult> PostLikes([FromForm] PostLikesRequestModel request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _contentService.PostLikesAsync(request, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message= ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
