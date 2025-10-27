@@ -83,7 +83,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
-        public async Task<ResponseData<List<GetPostResponseModel>>> GetPostAsync(CancellationToken cancellation)
+        public async Task<ResponseData<List<GetPostResponseModel>>> GetPostAsync(Guid userId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<GetPostResponseModel>>();
 
@@ -94,6 +94,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var getPost = await _context.PostedContent
                 .Select(x => new GetPostResponseModel
                 {
+                    PostId = x.Id,
                     UserId = x.UserId,
                     PostDescription = x.PostDescription,
                     Media = !string.IsNullOrEmpty(x.MediaUrl)
@@ -110,15 +111,18 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 .Select(u => new { u.Id, u.UserName })
                 .ToListAsync(cancellation);
 
+            var existingLikes = await _context.PostLikes.Where(x => x.UserId == userId).Select(x => new {x.UserId, x.IsLiked, x.PostId}).ToListAsync(cancellation);
             // Step 4: Project posts (no foreach)
             getPost = getPost
                 .Select(p => new GetPostResponseModel
                 {
                     UserId = p.UserId,
+                    PostId = p.PostId,
                     PostDescription = p.PostDescription,
                     Media = p.Media,
                     LikeCount = p.LikeCount,
-                    UserName = users.FirstOrDefault(u => u.Id == p.UserId)?.UserName ?? "Unknown User"
+                    UserName = users.FirstOrDefault(u => u.Id == p.UserId)?.UserName ?? "Unknown User",
+                    IsLiked = existingLikes.Any(l => l.PostId == p.PostId && l.IsLiked)
                 })
                 .ToList();
 
@@ -139,20 +143,35 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             if(getPost != null)
             {
                 var existingLike = await _context.PostLikes.FirstOrDefaultAsync(x => x.PostId == request.PostId && x.UserId == request.UserId, cancellation);
+                
                 if (existingLike == null)
                 {
                     var like = new PostLikes();
                     like.PostId = request.PostId;
                     like.UserId = request.UserId;
-                    like.LikedAt = request.LikedAt;
+                    like.LikedAt = DateTime.Now;
                     like.IsLiked = request.IsLiked;
                     _context.PostLikes.Add(like);
+
+                    await _context.SaveChangesAsync(cancellation);
+                    response.StatusCode = 200;
+                    response.Message = "Post liked successfully";
+                    response.Result = true;
+                    response.IsSuccess = true;
                 }
-                await _context.SaveChangesAsync(cancellation);
-                response.StatusCode = 200;
-                response.Message = "Post liked successfully";
-                response.Result = true;
-                response.IsSuccess = true;
+                else
+                {
+                    if (request.IsLiked == false)
+                    {
+                        _context.PostLikes.Remove(existingLike);
+                        await _context.SaveChangesAsync(cancellation);
+                        response.StatusCode = 200;
+                        response.Message = "Like removed successfully";
+                        response.Result = true;
+                        response.IsSuccess = true;
+                    }
+                }
+                   
             }
 
             return response;

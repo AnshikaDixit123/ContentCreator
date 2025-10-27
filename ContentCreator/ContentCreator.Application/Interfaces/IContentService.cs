@@ -8,7 +8,7 @@ namespace ContentCreator.Application.Interfaces
     {
         Task<ResponseData<bool>> UploadAPostAsync(UploadAPostRequest request, CancellationToken cancellation);
         Task<ResponseData<List<AllowedExtensionToCreatorResponseModel>>> GetAllowedExtensionToCreatorAsync(Guid RoleId, CancellationToken cancellation);
-        Task<ResponseData<List<GetPostResponseModel>>> GetPostAsync(CancellationToken cancellation);
+        Task<ResponseData<List<GetPostResponseModel>>> GetPostAsync(Guid userId, CancellationToken cancellation);
         Task<ResponseData<bool>> PostLikesAsync(PostLikesRequestModel request, CancellationToken cancellation);
     }
 }

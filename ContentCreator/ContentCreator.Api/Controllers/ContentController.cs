@@ -98,12 +98,12 @@ namespace ContentCreator.Api.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("GetPost")]
-        public async Task<IActionResult> GetPost(CancellationToken cancellation)
+        public async Task<IActionResult> GetPost(Guid userId, CancellationToken cancellation)
         {
             var response = new ResponseData<List<GetPostResponseModel>>();
             try
             {
-                response = await _contentService.GetPostAsync(cancellation);
+                response = await _contentService.GetPostAsync(userId, cancellation);
             }
             catch (Exception ex)
             {
