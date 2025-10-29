@@ -60,34 +60,38 @@
         });
     }
 
-    // Handle like click
     $(document).on("click", ".postLikes", function () {
         const $icon = $(this);
         const postId = $icon.data("postid");
-        const $likeCount = $icon.siblings(".like-count");
+        const $likeCount = $icon.closest(".post-actions").find(".like-count");;
         let currentLikes = parseInt($likeCount.text()) || 0;
         const isLiked = $icon.hasClass("fa-solid");
-       
+
         const formdata = new FormData();
         formdata.append("PostId", postId);
         formdata.append("UserId", userId);
         formdata.append("IsLiked", !isLiked); // toggle state
 
         $.ajax({
-            url: "https://localhost:7134/" + "api/Content/PostLikes",
+            url: "https://localhost:7134/api/Content/PostLikes",
             type: "POST",
             data: formdata,
             contentType: false,
             processData: false,
             success: function (response) {
-                if (response.StatusCode == 200) {                    
+                if (response.StatusCode == 200) {
                     if (!isLiked) {
-                        $icon.removeClass("fa-regular").addClass("fa-solid").css("color", "red");
+                        $icon.removeClass("fa-regular")
+                            .addClass("fa-solid")
+                            .css("color", "red");
                         $likeCount.text(currentLikes + 1);
                     } else {
-                        $icon.removeClass("fa-solid").addClass("fa-regular").css("color", "");
-                        $likeCount.text(currentLikes - 1 > 0 ? currentLikes - 1 : 0);
+                        $icon.removeClass("fa-solid")
+                            .addClass("fa-regular")
+                            .css("color", "");
+                        $likeCount.text(Math.max(0, currentLikes - 1));
                     }
+
                 } else {
                     Swal.fire("Error", "Post couldn't be liked", "error");
                 }
