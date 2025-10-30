@@ -150,7 +150,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             if(getPost != null)
             {
                 var existingLike = await _context.PostLikes.FirstOrDefaultAsync(x => x.PostId == request.PostId && x.UserId == request.UserId, cancellation);
-                var likeCount = await _context.PostedContent.CountAsync(l => l.Id == request.PostId);
+               
                 if (existingLike == null)
                 {
 
@@ -188,6 +188,53 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
             return response;
         }
+        public async Task<ResponseData<bool>> PostCommentsAsync(PostCommentsRequestModel request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            response.Message = "Comment deliveration was unsucessfull";
 
+            var getPost = await _context.PostedContent.Where(x => x.Id == request.PostId).FirstOrDefaultAsync();
+            if (getPost != null)
+            {
+                var comment = new Comments();
+                comment.PostId = request.PostId;
+                comment.UserId = request.UserId;
+                comment.Comment = request.Comment;
+                comment.ParentId = request.ParentId;
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync(cancellation);
+
+                response.StatusCode = 200;
+                response.Result = true;
+                response.Message = "Comment posted successfully";
+                response.IsSuccess = true;
+            }
+
+            return response;
+        }
+        public async Task<ResponseData<List<GetCommentsResponseModel>>> GetCommentsAsync(Guid postId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<GetCommentsResponseModel>>();
+
+            var getComments = await _context.Comments.Where(x => x.PostId == postId).Select(x => new GetCommentsResponseModel
+            {
+                Id = x.Id, PostId = x.PostId, UserId = x.UserId, ParentId = x.ParentId, Comment = x.Comment, CommentedAt = x.CommentedAt
+            }).ToListAsync();
+            if (getComments != null && getComments.Any())
+            {
+                response.StatusCode = 200;
+                response.Result = getComments;
+                response.Message = "Comments fetched successfully";
+                response.IsSuccess = true;
+            }
+            else
+            {
+                response.StatusCode = 201;
+                response.Result = new List<GetCommentsResponseModel>();
+                response.Message = "No comments found";
+                response.IsSuccess = false;
+            }
+            return response;
+        }
     }
 }

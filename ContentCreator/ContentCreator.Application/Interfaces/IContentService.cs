@@ -10,5 +10,7 @@ namespace ContentCreator.Application.Interfaces
         Task<ResponseData<List<AllowedExtensionToCreatorResponseModel>>> GetAllowedExtensionToCreatorAsync(Guid RoleId, CancellationToken cancellation);
         Task<ResponseData<List<GetPostResponseModel>>> GetPostAsync(Guid userId, CancellationToken cancellation);
         Task<ResponseData<bool>> PostLikesAsync(PostLikesRequestModel request, CancellationToken cancellation);
+        Task<ResponseData<bool>> PostCommentsAsync(PostCommentsRequestModel request, CancellationToken cancellation);
+        Task<ResponseData<List<GetCommentsResponseModel>>> GetCommentsAsync(Guid postId, CancellationToken cancellation);
     }
 }

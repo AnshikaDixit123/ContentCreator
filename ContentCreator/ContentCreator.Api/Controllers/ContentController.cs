@@ -127,6 +127,35 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
-
+        [HttpPost("PostComments")]
+        public async Task<IActionResult> PostComments([FromForm] PostCommentsRequestModel request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            try
+            {
+                response = await _contentService.PostCommentsAsync(request, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("GetComments")]
+        public async Task<IActionResult> GetComments(Guid postId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<GetCommentsResponseModel>>();
+            try
+            {
+                response = await _contentService.GetCommentsAsync(postId, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.StatusCode=500;
+                response.Message= ex.Message;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

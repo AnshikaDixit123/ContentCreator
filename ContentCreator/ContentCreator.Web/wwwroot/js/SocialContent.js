@@ -42,7 +42,7 @@
                             <div class="post-actions">
                                 <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart postLikes" data-postid="${data.PostId}" style="cursor:pointer;; color:${isLiked ? "red" : ""};"></i>
                                 <span class="like-count">${data.LikeCount || 0}</span>
-                                <i class="fa-regular fa-comment"></i>
+                                <i class="fa-regular fa-comment postComment" data-postid="${data.PostId}" style="cursor:pointer;"></i>
                                 <i class="fa-regular fa-paper-plane"></i>
                             </div>
                         </div>`;
@@ -62,7 +62,7 @@
 
     $(document).on("click", ".postLikes", function () {
         const $icon = $(this);
-        const postId = $icon.data("postid");
+        var postId = $icon.data("postid");
         const $likeCount = $icon.closest(".post-actions").find(".like-count");;
         let currentLikes = parseInt($likeCount.text()) || 0;
         const isLiked = $icon.hasClass("fa-solid");
@@ -99,7 +99,80 @@
             error: function (error) {
                 console.warn(error);
                 Swal.fire("Error", "Something went wrong", "error");
-            },
+            }
         });
     });
+    $(document).on("click", ".postComment", function () {
+        var postId = $(this).data("postid");
+        $("#commentModal").modal("show"); 
+        $("#commentModal").attr("data-postid", postId);
+        GetComments(postId)
+    })
+    $(document).on("click", "#postCommentBtn", function () {
+        debugger
+        var postId = $("#commentModal").attr("data-postid");
+        var comment = $("#newComment").val();
+        parentId = $(this).data("parentid") || null;
+
+        var formData = new FormData();
+        formData.append("PostId", postId);
+        formData.append("UserId", userId);
+        formData.append("Comment", comment);
+        if (parentId) {
+            formData.append("ParentId", parentId);
+        }
+
+        $.ajax({
+            url: "https://localhost:7134/api/Content/PostComments",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.StatusCode == 200) {
+                    $("#newComment").val(""); 
+                } else {
+                    Swal.fire("Error", response.Message, "error");
+                }
+            },
+            error: function (error) {
+                console.warn(error);
+                Swal.fire("Error", "Something went wrong", "error");
+            }
+        })
+    })
+    //function GetComments(postId) {
+    //    $.ajax({
+    //        url: `https://localhost:7134/api/Content/GetComments?postId=${postId}`,
+    //        type: "GET",
+    //        success: function (response) {
+    //            if (response.StatusCode === 200 && response.Result.length > 0) {
+    //                $("#commentsList").empty();
+
+    //                response.Result.forEach(function (comment) {
+    //                    if (comment.ParentId == null) {
+    //                        var html = `
+    //                        <div class="comment mb-3">
+    //                            <div class="d-flex align-items-center mb-1">
+    //                                <img src="https://i.pravatar.cc/30?u=${comment.UserId}" 
+    //                                     class="rounded-circle me-2" width="30" height="30" />
+    //                                <strong>${comment.UserName || "User"}</strong>
+    //                                <small class="text-muted ms-2">${comment.CreatedAt || ""}</small>
+    //                            </div>
+    //                            <p class="mb-1 ms-4">${comment.Comment}</p>
+    //                            <button class="btn btn-sm btn-link text-secondary p-0 ms-4 replyBtn" 
+    //                                    data-commentid="${comment.Id}">Reply</button>
+    //                        </div>`;
+    //                        $("#commentsList").append(html);
+    //                    }
+    //            } else {
+
+    //            }
+    //        },
+    //        error: function (error) {
+    //            console.warn(error);
+    //            Swal.fire("Error", "Failed to load comments", "error");
+    //        }
+    //    });
+    //}
 });
