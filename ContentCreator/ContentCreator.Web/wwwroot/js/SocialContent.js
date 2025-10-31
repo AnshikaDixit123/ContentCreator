@@ -104,7 +104,8 @@
     });
     $(document).on("click", ".postComment", function () {
         var postId = $(this).data("postid");
-        $("#commentModal").modal("show"); 
+        $("#commentModal").modal("show");
+        //alert(postId)
         $("#commentModal").attr("data-postid", postId);
         GetComments(postId)
     })
@@ -141,38 +142,55 @@
             }
         })
     })
-    //function GetComments(postId) {
-    //    $.ajax({
-    //        url: `https://localhost:7134/api/Content/GetComments?postId=${postId}`,
-    //        type: "GET",
-    //        success: function (response) {
-    //            if (response.StatusCode === 200 && response.Result.length > 0) {
-    //                $("#commentsList").empty();
+    function GetComments(postId) {
+        $("#commentslist").empty();
+       
+        $.ajax({
+            url: `https://localhost:7134/api/content/getcomments?postId=${postId}`, 
+            type: "GET",
+            success: function (response) {
+                console.log("Response from API:", response);
+                debugger
+                const comments = Array.isArray(response.Result) ? response.Result : [];
 
-    //                response.Result.forEach(function (comment) {
-    //                    if (comment.ParentId == null) {
-    //                        var html = `
-    //                        <div class="comment mb-3">
-    //                            <div class="d-flex align-items-center mb-1">
-    //                                <img src="https://i.pravatar.cc/30?u=${comment.UserId}" 
-    //                                     class="rounded-circle me-2" width="30" height="30" />
-    //                                <strong>${comment.UserName || "User"}</strong>
-    //                                <small class="text-muted ms-2">${comment.CreatedAt || ""}</small>
-    //                            </div>
-    //                            <p class="mb-1 ms-4">${comment.Comment}</p>
-    //                            <button class="btn btn-sm btn-link text-secondary p-0 ms-4 replyBtn" 
-    //                                    data-commentid="${comment.Id}">Reply</button>
-    //                        </div>`;
-    //                        $("#commentsList").append(html);
-    //                    }
-    //            } else {
+                if (comments.length === 0) {
+                    const noDataHtml = `
+                    <div style="padding: 10px; background: #f9f9f9; color: #777; text-align: center;">
+                        No comments found for this post.
+                    </div>
+                `;
 
-    //            }
-    //        },
-    //        error: function (error) {
-    //            console.warn(error);
-    //            Swal.fire("Error", "Failed to load comments", "error");
-    //        }
-    //    });
-    //}
+                    $("#commentslist").append(noDataHtml);
+                    return;
+                }
+                let html = "";
+                comments.forEach(cmt => {
+                    const commentId = cmt.id || "";
+                    const userId = cmt.userId || "Unknown User";
+                    const text = cmt.commentText || "(No text)";
+                    const date = cmt.commentedAt
+                        ? new Date(cmt.commentedAt).toLocaleString()
+                        : "Unknown date";
+
+                    html += `
+        <div class="comment mb-2" style="border: 1px solid #eee; border-radius: 8px; padding: 10px; background: #fafafa;">
+            <div style="display:flex; justify-content:space-between;">
+                <strong>${userId}</strong>
+                <span style="font-size: 12px; color: #777;">${date}</span>
+            </div>
+            <div style="margin-top: 5px;">${text}</div>
+        </div>
+    `;
+                });
+
+                $("#commentslist").append(html);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error loading comments:", error);
+                Swal.fire("Error", "Failed to load comments", "error");
+            }
+        });
+    }
+
+
 });
