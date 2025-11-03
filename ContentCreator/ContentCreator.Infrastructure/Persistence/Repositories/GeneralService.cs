@@ -29,6 +29,8 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             response.Message = "Something went wrong";
             List<UserDetailsResponse> userList = new List<UserDetailsResponse>();
 
+
+
             var getUsers = _userManager.Users.ToList();
             if (getUsers.Any())
             {

@@ -131,7 +131,9 @@
             processData: false,
             success: function (response) {
                 if (response.StatusCode == 200) {
-                    $("#newComment").val(""); 
+                    $("#newComment").val("");
+                    // Refresh comments after posting
+                    GetComments(postId); // Add this line
                 } else {
                     Swal.fire("Error", response.Message, "error");
                 }
@@ -143,47 +145,56 @@
         })
     })
     function GetComments(postId) {
-        $("#commentslist").empty();
-       
+        $("#commentsList").empty();
+
         $.ajax({
-            url: `https://localhost:7134/api/content/getcomments?postId=${postId}`, 
+            url: `https://localhost:7134/api/content/getcomments?postId=${postId}`,
             type: "GET",
             success: function (response) {
                 console.log("Response from API:", response);
-                debugger
+
+                if (!response || !response.IsSuccess) {
+                    const noDataHtml = `
+                <div style="padding: 10px; background: #f9f9f9; color: #777; text-align: center;">
+                    ${response?.Message || 'No comments found for this post.'}
+                </div>`;
+                    $("#commentsList").append(noDataHtml);
+                    return;
+                }
+
                 const comments = Array.isArray(response.Result) ? response.Result : [];
 
                 if (comments.length === 0) {
                     const noDataHtml = `
-                    <div style="padding: 10px; background: #f9f9f9; color: #777; text-align: center;">
-                        No comments found for this post.
-                    </div>
-                `;
-
-                    $("#commentslist").append(noDataHtml);
+                <div style="padding: 10px; background: #f9f9f9; color: #777; text-align: center;">
+                    No comments found for this post.
+                </div>`;
+                    $("#commentsList").append(noDataHtml);
                     return;
                 }
+
                 let html = "";
                 comments.forEach(cmt => {
-                    const commentId = cmt.id || "";
-                    const userId = cmt.userId || "Unknown User";
-                    const text = cmt.commentText || "(No text)";
-                    const date = cmt.commentedAt
-                        ? new Date(cmt.commentedAt).toLocaleString()
+                    const commentId = cmt.Id || "";
+                    // Use UserName instead of UserId
+                    const userName = cmt.UserName || "Unknown User";
+
+                    const text = cmt.Comment || "(No text)";
+                    const date = cmt.CommentedAt
+                        ? new Date(cmt.CommentedAt).toLocaleString()
                         : "Unknown date";
 
                     html += `
-        <div class="comment mb-2" style="border: 1px solid #eee; border-radius: 8px; padding: 10px; background: #fafafa;">
-            <div style="display:flex; justify-content:space-between;">
-                <strong>${userId}</strong>
-                <span style="font-size: 12px; color: #777;">${date}</span>
-            </div>
-            <div style="margin-top: 5px;">${text}</div>
+    <div class="comment mb-2" style="border: 1px solid #eee; border-radius: 8px; padding: 10px; background: #fafafa;">
+        <div style="display:flex; justify-content:space-between;">
+            <strong>${userName}</strong>
+            <span style="font-size: 12px; color: #777;">${date}</span>
         </div>
-    `;
-                });
-
-                $("#commentslist").append(html);
+        <div style="margin-top: 5px;">${text}</div>
+    </div>
+`;
+                }); 
+                $("#commentsList").append(html);
             },
             error: function (xhr, status, error) {
                 console.error("Error loading comments:", error);
@@ -191,6 +202,4 @@
             }
         });
     }
-
-
 });

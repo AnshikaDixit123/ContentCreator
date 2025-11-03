@@ -216,12 +216,31 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         {
             var response = new ResponseData<List<GetCommentsResponseModel>>();
 
-            var getComments = await _context.Comments.Where(x => x.PostId == postId).Select(x => new GetCommentsResponseModel
-            {
-                Id = x.Id, PostId = x.PostId, UserId = x.UserId, ParentId = x.ParentId, Comment = x.Comment, CommentedAt = x.CommentedAt
-            }).ToListAsync();
+            var getComments = await _context.Comments
+                .Where(x => x.PostId == postId)
+                .OrderBy(x => x.CommentedAt)
+                .Select(x => new GetCommentsResponseModel
+
+                {
+                    Id = x.Id,
+                    PostId = x.PostId,
+                    UserId = x.UserId,
+                    ParentId = x.ParentId,
+                    Comment = x.Comment,
+                    CommentedAt = x.CommentedAt
+                })
+                .ToListAsync(cancellation);
+
+            // Get usernames from UserManager for each comment
             if (getComments != null && getComments.Any())
             {
+
+                foreach (var comment in getComments)
+                {
+                    var user = await _userManager.FindByIdAsync(comment.UserId.ToString());
+                    comment.UserName = user?.UserName ?? "Unknown User";
+                }
+
                 response.StatusCode = 200;
                 response.Result = getComments;
                 response.Message = "Comments fetched successfully";
@@ -229,12 +248,14 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             }
             else
             {
-                response.StatusCode = 201;
+                response.StatusCode = 200;
                 response.Result = new List<GetCommentsResponseModel>();
                 response.Message = "No comments found";
-                response.IsSuccess = false;
+                response.IsSuccess = true;
             }
             return response;
         }
+
+
     }
 }
