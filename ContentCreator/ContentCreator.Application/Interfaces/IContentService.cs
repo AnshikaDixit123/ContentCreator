@@ -12,5 +12,6 @@ namespace ContentCreator.Application.Interfaces
         Task<ResponseData<bool>> PostLikesAsync(PostLikesRequestModel request, CancellationToken cancellation);
         Task<ResponseData<bool>> PostCommentsAsync(PostCommentsRequestModel request, CancellationToken cancellation);
         Task<ResponseData<List<GetCommentsResponseModel>>> GetCommentsAsync(Guid postId, CancellationToken cancellation);
+        Task<ResponseData<List<GetCommentsResponseModel>>> GetRepliesAsync(Guid commentId, CancellationToken cancellation);
     }
 }

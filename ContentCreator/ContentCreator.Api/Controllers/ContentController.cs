@@ -157,5 +157,21 @@ namespace ContentCreator.Api.Controllers
             }
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpGet("getreplies")]
+        public async Task<IActionResult> getreplies(Guid postId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<GetCommentsResponseModel>>();
+            try
+            {
+                response = await _contentService.GetRepliesAsync(postId, cancellation);
+            }
+            catch (Exception ex)
+            {
+                response.StatusCode = 500;
+                response.Message = ex.Message;
+            }
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

@@ -3,9 +3,10 @@ using ContentCreator.Application.Common.DTOs.RequestDTOs;
 using ContentCreator.Application.Common.DTOs.ResponseDTOs;
 using ContentCreator.Application.Interfaces;
 using ContentCreator.Domain.Entities.Identity;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace ContentCreator.Infrastructure.Persistence.Repositories
@@ -191,11 +192,25 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         public async Task<ResponseData<bool>> PostCommentsAsync(PostCommentsRequestModel request, CancellationToken cancellation)
         {
             var response = new ResponseData<bool>();
-            response.Message = "Comment deliveration was unsucessfull";
 
-            var getPost = await _context.PostedContent.Where(x => x.Id == request.PostId).FirstOrDefaultAsync();
+            var getPost = await _context.PostedContent
+                .Where(x => x.Id == request.PostId)
+                .FirstOrDefaultAsync(cancellation);
+
             if (getPost != null)
             {
+                if (request.ParentId.HasValue)
+                {
+                    var parentComment = await _context.Comments
+                        .Where(x => x.Id == request.ParentId.Value && x.PostId == request.PostId)
+                        .FirstOrDefaultAsync(cancellation);
+
+                    if (parentComment == null)
+                    {
+                        request.ParentId = null;
+                    }
+                }
+
                 var comment = new Comments();
                 comment.PostId = request.PostId;
                 comment.UserId = request.UserId;
@@ -206,8 +221,15 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
 
                 response.StatusCode = 200;
                 response.Result = true;
-                response.Message = "Comment posted successfully";
+                response.Message = request.ParentId.HasValue ? "Reply posted successfully" : "Comment posted successfully";
                 response.IsSuccess = true;
+            }
+            else
+            {
+                response.Message = "Post not found";
+                response.StatusCode = 404;
+                response.Result = false;
+                response.IsSuccess = false;
             }
 
             return response;
@@ -217,7 +239,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             var response = new ResponseData<List<GetCommentsResponseModel>>();
 
             var getComments = await _context.Comments
-                .Where(x => x.PostId == postId)
+                .Where(x => x.PostId == postId && x.ParentId == null)
                 .OrderBy(x => x.CommentedAt)
                 .Select(x => new GetCommentsResponseModel
 
@@ -256,6 +278,45 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             return response;
         }
 
+        public async Task<ResponseData<List<GetCommentsResponseModel>>> GetRepliesAsync(Guid commentId, CancellationToken cancellation)
+        {
+            var response = new ResponseData<List<GetCommentsResponseModel>>();
 
+            var getReplies = await _context.Comments
+                .Where(x => x.ParentId == commentId)
+                .OrderBy(x => x.CommentedAt)
+                .Select(x => new GetCommentsResponseModel
+                {
+                    Id = x.Id,
+                    PostId = x.PostId,
+                    UserId = x.UserId,
+                    ParentId = x.ParentId,
+                    Comment = x.Comment,
+                    CommentedAt = x.CommentedAt
+                })
+                .ToListAsync(cancellation);
+
+            if (getReplies != null && getReplies.Any())
+            {
+                foreach (var reply in getReplies)
+                {
+                    var user = await _userManager.FindByIdAsync(reply.UserId.ToString());
+                    reply.UserName = user?.UserName ?? "Unknown User";
+                }
+
+                response.StatusCode = 200;
+                response.Result = getReplies;
+                response.Message = "Replies fetched successfully";
+                response.IsSuccess = true;
+            }
+            else
+            {
+                response.StatusCode = 200;
+                response.Result = new List<GetCommentsResponseModel>();
+                response.Message = "No replies found";
+                response.IsSuccess = true;
+            }
+            return response;
+        }
     }
 }
