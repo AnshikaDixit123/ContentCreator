@@ -282,44 +282,40 @@
                 $repliesList.html('<div style="text-align: center; color: #6c757d; padding: 10px;">No replies yet</div>');
             }
         } catch (error) {
-
-
-
-
             console.error('Error loading replies:', error);
             $comment.find('.replies-list').html('<div style="text-align: center; color: #dc3545; padding: 10px;">Error loading replies</div>');
         }
     }
-    async function postReply(commentId, replyText, $comment) {
-        try {
-            $comment.find('.post-reply-btn').prop('disabled', true).text('Posting...');
+    //async function postReply(commentId, replyText, $comment) {
+    //    try {
+    //        $comment.find('.post-reply-btn').prop('disabled', true).text('Posting...');
 
-            const formData = new FormData();
-            formData.append("PostId", currentPostId);
-            formData.append("UserId", userId);
-            formData.append("Comment", replyText);
-            formData.append("ParentId", commentId); // This makes it a reply
+    //        const formData = new FormData();
+    //        formData.append("PostId", currentPostId);
+    //        formData.append("UserId", userId);
+    //        formData.append("Comment", replyText);
+    //        formData.append("ParentId", commentId); // This makes it a reply
 
-            const response = await $.ajax({
-                url: "https://localhost:7134/api/Content/PostComments",
-                type: "POST",
-                data: formData,
-                contentType: false,
-                processData: false
-            });
+    //        const response = await $.ajax({
+    //            url: "https://localhost:7134/api/Content/PostComments",
+    //            type: "POST",
+    //            data: formData,
+    //            contentType: false,
+    //            processData: false
+    //        });
 
-            if (response.StatusCode == 200) {
-                $comment.find('.reply-text').val('');
-                await loadReplies(commentId, $comment);
-                Swal.fire("Success", response.Message, "success");
-            } else {
-                Swal.fire("Error", response.Message, "error");
-            }
-        } catch (error) {
-            console.error('Failed to post reply:', error);
-            Swal.fire("Error", "Failed to post reply", "error");
-        } finally {
-            $comment.find('.post-reply-btn').prop('disabled', false).text('Post Reply');
-        }
-    }
+    //        if (response.StatusCode == 200) {
+    //            $comment.find('.reply-text').val('');
+    //            await loadReplies(commentId, $comment);
+    //            Swal.fire("Success", response.Message, "success");
+    //        } else {
+    //            Swal.fire("Error", response.Message, "error");
+    //        }
+    //    } catch (error) {
+    //        console.error('Failed to post reply:', error);
+    //        Swal.fire("Error", "Failed to post reply", "error");
+    //    } finally {
+    //        $comment.find('.post-reply-btn').prop('disabled', false).text('Post Reply');
+    //    }
+    //}
 });
