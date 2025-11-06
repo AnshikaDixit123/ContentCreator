@@ -1,8 +1,6 @@
 ﻿$(document).ready(function () {
-    const userId = localStorage.getItem("UserId");   
-
+    const userId = localStorage.getItem("UserId");  
     GetPost();
-
     function GetPost() {
         var rawHtml = "";
 
@@ -38,16 +36,14 @@
                                 : ""
                             }
                             </div>
-
                             <div class="post-actions">
                                 <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart postLikes" data-postid="${data.PostId}" style="cursor:pointer;; color:${isLiked ? "red" : ""};"></i>
                                 <span class="like-count">${data.LikeCount || 0}</span>
                                 <i class="fa-regular fa-comment postComment" data-postid="${data.PostId}" style="cursor:pointer;"></i>
-                                <i class="fa-regular fa-paper-plane"></i>
+                                <i class="fa-regular fa-paper-plane re-share"></i>
                             </div>
                         </div>`;
                     }
-
                     $("#postSection").html(rawHtml);
                 } else {
                     $("#postSection").html("<p style='text-align:center;color:#777;'>No posts found.</p>");
@@ -70,7 +66,7 @@
         const formdata = new FormData();
         formdata.append("PostId", postId);
         formdata.append("UserId", userId);
-        formdata.append("IsLiked", !isLiked); // toggle state
+        formdata.append("IsLiked", !isLiked); 
 
         $.ajax({
             url: "https://localhost:7134/api/Content/PostLikes",
@@ -105,41 +101,42 @@
     $(document).on("click", ".postComment", function () {
         var postId = $(this).data("postid");
         $("#commentModal").modal("show");
-        //alert(postId)
         $("#commentModal").attr("data-postid", postId);
         GetComments(postId)
     })
     $(document).on("click", "#postCommentBtn", function () {
         var postId = $("#commentModal").attr("data-postid");
-        var comment = $("#newComment").val();
-        parentId = $(this).data("parentid") || null;
-
+        var commentText = $("#newComment").val().trim(); 
+        var userId = localStorage.getItem("UserId");
+        console.log("Preparing to send comment:", { postId, commentText, userId });
+        if (!commentText) {            
+            return;
+        }
         var formData = new FormData();
         formData.append("PostId", postId);
         formData.append("UserId", userId);
-        formData.append("Comment", comment);
-        formData.append("ParentId", null);
+        formData.append("Comment", commentText);
 
         $.ajax({
             url: "https://localhost:7134/api/Content/PostComments",
             type: "POST",
             data: formData,
-            contentType: false,
             processData: false,
-            success: function (response) {
-                if (response.StatusCode == 200) {
-                    $("#newComment").val("");
-                    GetComments(postId);
-                } else {
-                    Swal.fire("Error", response.Message, "error");
-                }
+            contentType: false,
+            success: function (res) {
+                console.log("✅ API Success:", res);
+                $("#newComment").val("");
+                GetComments(postId); 
             },
-            error: function (error) {
-                console.warn(error);
-                Swal.fire("Error", "Something went wrong", "error");
+            error: function (xhr, status, error) {
+                console.error("❌ API Error:", status, error);
+                console.error("Response text:", xhr.responseText);
             }
-        })
-    })
+        }).done(function () {
+            console.log("AJAX request sent!");
+        });
+    });
+
     function GetComments(postId) {
         $("#commentsList").empty();
 
@@ -147,8 +144,6 @@
             url: `https://localhost:7134/api/content/getcomments?postId=${postId}`,
             type: "GET",
             success: function (response) {
-                console.log("Response from API:", response);
-
                 if (!response || !response.IsSuccess) {
                     const noDataHtml = `
                 <div style="padding: 10px; background: #f9f9f9; color: #777; text-align: center;">
@@ -157,7 +152,6 @@
                     $("#commentsList").append(noDataHtml);
                     return;
                 }
-
                 const comments = Array.isArray(response.Result) ? response.Result : [];
 
                 if (comments.length === 0) {
@@ -172,9 +166,7 @@
                 let html = "";
                 comments.forEach(cmt => {
                     const commentId = cmt.Id || "";
-                    // Use UserName instead of UserId
                     const userName = cmt.UserName || "Unknown User";
-
                     const text = cmt.Comment || "(No text)";
                     const date = cmt.CommentedAt
                         ? new Date(cmt.CommentedAt).toLocaleString()
@@ -252,70 +244,121 @@
     async function loadReplies(commentId, $comment) {
         try {
             const $repliesList = $comment.find('.replies-list');
-            $repliesList.html('<div style="text-align: center; color: #6c757d; padding: 10px;">Loading replies...</div>');
+            if ($repliesList.length === 0) {
+                console.error("replies-list not found inside comment block");
+                return;
+            }
 
-            // You'll need to create this endpoint in your API
+            $repliesList.html('<div style="text-align: center; color: #6c757d; padding: 10px;">Loading replies...</div>');
+            const apiUrl = `https://localhost:7134/api/content/GetReplies?commentId=${commentId}`;
             const response = await $.ajax({
-                url: `https://localhost:7134/api/content/getreplies?commentId=${commentId}`,
+                url: apiUrl,
                 method: 'GET'
             });
+            const isSuccess = response.isSuccess ?? response.IsSuccess;
+            const replies = response.result ?? response.Result;
 
-            if (response.isSuccess && response.result && response.result.length > 0) {
+            if (isSuccess && Array.isArray(replies) && replies.length > 0) {
                 let repliesHtml = '';
-                response.result.forEach(reply => {
-                    const replyDate = reply.CommentedAt
-                        ? new Date(reply.CommentedAt).toLocaleString()
-                        : "Unknown date";
+
+                replies.forEach(reply => {
+                    const replyDate = reply.commentedAt
+                        ? new Date(reply.commentedAt).toLocaleString()
+                        : (reply.CommentedAt ? new Date(reply.CommentedAt).toLocaleString() : "Unknown date");
 
                     repliesHtml += `
-                        <div class="reply mb-2" style="padding: 8px; background: white; border-radius: 6px; border: 1px solid #e9ecef;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                <strong style="color: #333; font-size: 14px;">${reply.UserName || "Unknown User"}</strong>
-                                <span style="font-size: 11px; color: #6c757d;">${replyDate}</span>
-                            </div>
-                            <div style="margin-top: 4px; color: #495057; font-size: 13px; line-height: 1.3;">${reply.Comment}</div>
+                    <div class="reply mb-2" style="padding: 8px; background: white; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <strong style="color: #333; font-size: 14px;">
+                                ${reply.userName || reply.UserName || "Unknown User"}
+                            </strong>
+                            <span style="font-size: 11px; color: #6c757d;">${replyDate}</span>
                         </div>
-                    `;
+                        <div style="margin-top: 4px; color: #495057; font-size: 13px; line-height: 1.3;">
+                            ${reply.comment || reply.Comment}
+                        </div>
+                    </div>
+                `;
                 });
+
                 $repliesList.html(repliesHtml);
             } else {
                 $repliesList.html('<div style="text-align: center; color: #6c757d; padding: 10px;">No replies yet</div>');
             }
+
         } catch (error) {
             console.error('Error loading replies:', error);
-            $comment.find('.replies-list').html('<div style="text-align: center; color: #dc3545; padding: 10px;">Error loading replies</div>');
+            $comment.find('.replies-list')
+                .html('<div style="text-align: center; color: #dc3545; padding: 10px;">Error loading replies</div>');
         }
     }
-    //async function postReply(commentId, replyText, $comment) {
-    //    try {
-    //        $comment.find('.post-reply-btn').prop('disabled', true).text('Posting...');
+    function postReply(commentId, replyText, $comment) {
+        $comment.find('.post-reply-btn').prop('disabled', true).text('Posting...');
+        var postId = $("#commentModal").attr("data-postid");
+        var userIdValue = localStorage.getItem("UserId");
 
-    //        const formData = new FormData();
-    //        formData.append("PostId", currentPostId);
-    //        formData.append("UserId", userId);
-    //        formData.append("Comment", replyText);
-    //        formData.append("ParentId", commentId); // This makes it a reply
+        if (!postId || !userIdValue) {
+            console.error("Missing postId or userId:", postId, userIdValue);
+            Swal.fire("Error", "Missing user or post information", "error");
+            $comment.find('.post-reply-btn').prop('disabled', false).text('Post Reply');
+            return;
+        }
+        var formData = new FormData();
+        formData.append("PostId", postId);
+        formData.append("UserId", userIdValue);
+        formData.append("Comment", replyText);
+        formData.append("ParentId", commentId);
 
-    //        const response = await $.ajax({
-    //            url: "https://localhost:7134/api/Content/PostComments",
-    //            type: "POST",
-    //            data: formData,
-    //            contentType: false,
-    //            processData: false
-    //        });
+        $.ajax({
+            url: "https://localhost:7134/api/Content/PostComments",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                console.log("✅ Reply API Response:", response);
+                if (response.StatusCode == 200 || response.IsSuccess) {
+                    $comment.find('.reply-text').val('');
+                    loadReplies(commentId, $comment);
 
-    //        if (response.StatusCode == 200) {
-    //            $comment.find('.reply-text').val('');
-    //            await loadReplies(commentId, $comment);
-    //            Swal.fire("Success", response.Message, "success");
-    //        } else {
-    //            Swal.fire("Error", response.Message, "error");
-    //        }
-    //    } catch (error) {
-    //        console.error('Failed to post reply:', error);
-    //        Swal.fire("Error", "Failed to post reply", "error");
-    //    } finally {
-    //        $comment.find('.post-reply-btn').prop('disabled', false).text('Post Reply');
-    //    }
-    //}
+                } else {
+                    Swal.fire("Error", response.Message || "Failed to post reply", "error");
+                }
+            },
+            error: function (error) {
+                console.error('❌ Failed to post reply:', error);
+                Swal.fire("Error", "Failed to post reply", "error");
+            },
+            complete: function () {
+                $comment.find('.post-reply-btn').prop('disabled', false).text('Post Reply');
+            }
+        });
+    }
+    $(document).on("click", ".re-share", function () {
+        var parentId = $(this).closest(".post-card").find(".postLikes").data("postid"); 
+        var formData = new FormData();
+        formData.append("SharedBy", userId);
+        formData.append("ParentId", parentId);
+        $.ajax({
+            url: "https://localhost:7134/api/Content/ReShare",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.isSuccess || res.StatusCode == 200) {
+                    Swal.fire("Success", "Post reshared successfully!", "success");
+                } else {
+                    Swal.fire("Error", res.message || "Failed to reshare post", "error");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(" API Error:", status, error);
+                console.error("Response text:", xhr.responseText);
+                Swal.fire("Error", "Failed to reshare post", "error");
+            }
+        }).done(function () {
+            console.log("AJAX request sent for resharing!");
+        });
+    })
 });

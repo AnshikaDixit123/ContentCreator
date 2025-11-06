@@ -11,5 +11,8 @@
         public bool IsPrivate {  get; set; } = false;
         public bool IsSubscribed {  get; set; } = false;
         public int LikeCount {  get; set; } = 0;
+        public Guid? SharedBy { get; set; }
+        public DateTime? SharedOn { get; set; } = DateTime.Now;
+        public Guid? ParentId { get; set; }
     }
 }

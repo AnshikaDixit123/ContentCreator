@@ -66,20 +66,20 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 var getExtensionDetails = await _context.AllowedFileTypesAndExtensions.Where(x => getExtensions.Contains(x.Id))
                 .Select(x => new AllowedExtensionToCreatorResponseModel
                 {
-                   FileTypeId = x.Id,
-                   FileExtension = x.FileExtension,
-                   MinimumSize = x.MinimumSize ?? 0,
-                   MaximumSize = x.MaximumSize ?? 0
+                    FileTypeId = x.Id,
+                    FileExtension = x.FileExtension,
+                    MinimumSize = x.MinimumSize ?? 0,
+                    MaximumSize = x.MaximumSize ?? 0
                 })
                 .ToListAsync(cancellation);
-                if(getExtensionDetails.Any())
+                if (getExtensionDetails.Any())
                 {
                     response.StatusCode = 200;
 
                     response.Message = "Allowed extensions fetched successfully";
                     response.Result = getExtensionDetails;
                     response.IsSuccess = true;
-                } 
+                }
             }
 
             return response;
@@ -119,7 +119,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         .GroupBy(pl => pl.PostId)
         .Select(g => new { PostId = g.Key, Count = g.Count() })
         .ToListAsync(cancellation);
-            var existingLikes = await _context.PostLikes.Where(x => x.UserId == userId).Select(x => new {x.UserId, x.IsLiked, x.PostId}).ToListAsync(cancellation);
+            var existingLikes = await _context.PostLikes.Where(x => x.UserId == userId).Select(x => new { x.UserId, x.IsLiked, x.PostId }).ToListAsync(cancellation);
             // Step 4: Project posts (no foreach)
             getPost = getPost
                 .Select(p => new GetPostResponseModel
@@ -148,10 +148,10 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             response.Message = "Post unliked";
 
             var getPost = await _context.PostedContent.Where(x => x.Id == request.PostId).FirstOrDefaultAsync();
-            if(getPost != null)
+            if (getPost != null)
             {
                 var existingLike = await _context.PostLikes.FirstOrDefaultAsync(x => x.PostId == request.PostId && x.UserId == request.UserId, cancellation);
-               
+
                 if (existingLike == null)
                 {
 
@@ -316,6 +316,41 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Message = "No replies found";
                 response.IsSuccess = true;
             }
+            return response;
+        }
+        public async Task<ResponseData<bool>> ReshareAsync(ReshareRequestModel request, CancellationToken cancellation)
+        {
+            var response = new ResponseData<bool>();
+            var orignalPost = await _context.PostedContent.Where(x => x.Id == request.ParentId).FirstOrDefaultAsync();
+            if (orignalPost != null)
+            {
+                var reshare = new PostedContent();
+                reshare.UserId = orignalPost.UserId;
+                reshare.PostDescription = orignalPost.PostDescription;
+                reshare.MediaUrl = orignalPost.MediaUrl;
+                reshare.DatePosted = orignalPost.DatePosted;
+                reshare.IsPublic = true;
+                reshare.IsPrivate = false;
+                reshare.IsSubscribed = false;
+                reshare.LikeCount = 0;
+                reshare.SharedBy = request.SharedBy;
+                reshare.SharedOn = DateTime.Now;
+                reshare.ParentId = request.ParentId;
+
+                _context.PostedContent.Add(reshare);
+                await _context.SaveChangesAsync(cancellation);
+
+                response.Message = "Post shared successfully.";
+                response.StatusCode = 200;
+                response.IsSuccess = true;
+                response.Result = true;
+            }
+            else
+            {
+                response.Message = "Original post not found.";
+                response.IsSuccess = false;
+                response.Result = false;
+            }              
             return response;
         }
     }
