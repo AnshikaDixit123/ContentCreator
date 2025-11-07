@@ -335,10 +335,14 @@
         });
     }
     $(document).on("click", ".re-share", function () {
-        var parentId = $(this).closest(".post-card").find(".postLikes").data("postid"); 
+        const userId = localStorage.getItem("UserId");
+        const parentCard = $(this).closest(".post-card");
+        const parentId = parentCard.find(".postLikes").data("postid");
+
         var formData = new FormData();
         formData.append("SharedBy", userId);
         formData.append("ParentId", parentId);
+
         $.ajax({
             url: "https://localhost:7134/api/Content/ReShare",
             type: "POST",
@@ -348,17 +352,18 @@
             success: function (res) {
                 if (res.isSuccess || res.StatusCode == 200) {
                     Swal.fire("Success", "Post reshared successfully!", "success");
+
                 } else {
                     Swal.fire("Error", res.message || "Failed to reshare post", "error");
                 }
             },
             error: function (xhr, status, error) {
-                console.error(" API Error:", status, error);
+                console.error("API Error:", status, error);
                 console.error("Response text:", xhr.responseText);
                 Swal.fire("Error", "Failed to reshare post", "error");
             }
         }).done(function () {
             console.log("AJAX request sent for resharing!");
         });
-    })
+    });
 });
