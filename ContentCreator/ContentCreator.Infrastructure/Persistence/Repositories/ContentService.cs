@@ -92,35 +92,61 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
             string host = _httpContextAccessor.HttpContext.Request.Host.Value;
             string hostedUrl = $"{scheme}://{host}/";
 
+            // Get all posts including reshared ones
             var getPost = await _context.PostedContent
                 .Select(x => new GetPostResponseModel
                 {
                     PostId = x.Id,
                     UserId = x.UserId,
                     PostDescription = x.PostDescription,
-                    //LikeCount = x.LikeCount,
                     Media = !string.IsNullOrEmpty(x.MediaUrl)
                         ? Path.Combine(hostedUrl, x.MediaUrl.Replace("\\", "/"))
-                        : null
+                        : null,
+                    SharedBy = x.SharedBy,
+                    ParentId = x.ParentId,
+                    DatePosted = x.DatePosted,
+                    IsReshared = x.SharedBy != null
                 })
-                        .ToListAsync(cancellation);
+                .ToListAsync(cancellation);
 
             List<Guid> postIds = getPost.Select(x => x.PostId).ToList();
             List<Guid> userIds = getPost.Select(x => x.UserId).Distinct().ToList();
 
-            // Step 3: Fetch users in one go
+            // Get original post data for reshared posts WITH MEDIA
+            var parentPostIds = getPost.Where(x => x.ParentId.HasValue).Select(x => x.ParentId.Value).Distinct().ToList();
+            var originalPosts = await _context.PostedContent
+                .Where(x => parentPostIds.Contains(x.Id))
+                .Select(x => new
+                {
+                    x.Id,
+                    x.UserId,
+                    x.PostDescription,
+                    Media = !string.IsNullOrEmpty(x.MediaUrl)
+                        ? Path.Combine(hostedUrl, x.MediaUrl.Replace("\\", "/"))
+                        : null
+                })
+                .ToListAsync(cancellation);
+
+            // Add original post user IDs to the user list
+            var originalUserIds = originalPosts.Select(x => x.UserId).Distinct().ToList();
+            userIds.AddRange(originalUserIds);
+            userIds = userIds.Distinct().ToList();
+
+            // Get all users (ONLY UserName - no FullName)
             var users = await _userManager.Users
                 .Where(u => userIds.Contains(u.Id))
                 .Select(u => new { u.Id, u.UserName })
                 .ToListAsync(cancellation);
 
             var likeData = await _context.PostLikes
-        .Where(pl => postIds.Contains(pl.PostId))
-        .GroupBy(pl => pl.PostId)
-        .Select(g => new { PostId = g.Key, Count = g.Count() })
-        .ToListAsync(cancellation);
+                .Where(pl => postIds.Contains(pl.PostId))
+                .GroupBy(pl => pl.PostId)
+                .Select(g => new { PostId = g.Key, Count = g.Count() })
+                .ToListAsync(cancellation);
+
             var existingLikes = await _context.PostLikes.Where(x => x.UserId == userId).Select(x => new { x.UserId, x.IsLiked, x.PostId }).ToListAsync(cancellation);
-            // Step 4: Project posts (no foreach)
+
+            // Build the response with original post information
             getPost = getPost
                 .Select(p => new GetPostResponseModel
                 {
@@ -130,11 +156,23 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                     Media = p.Media,
                     LikeCount = likeData.FirstOrDefault(ld => ld.PostId == p.PostId)?.Count ?? 0,
                     UserName = users.FirstOrDefault(u => u.Id == p.UserId)?.UserName ?? "Unknown User",
-                    IsLiked = existingLikes.Any(l => l.PostId == p.PostId && l.IsLiked)
+                    IsLiked = existingLikes.Any(l => l.PostId == p.PostId && l.IsLiked),
+                    SharedBy = p.SharedBy,
+                    ParentId = p.ParentId,
+                    DatePosted = p.DatePosted,
+                    IsReshared = p.IsReshared,
+                    // Original post information for reshared posts
+                    OriginalPost = p.ParentId.HasValue ? new OriginalPostModel
+                    {
+                        UserId = originalPosts.FirstOrDefault(op => op.Id == p.ParentId.Value)?.UserId ?? Guid.Empty,
+                        UserName = users.FirstOrDefault(u => u.Id == originalPosts.FirstOrDefault(op => op.Id == p.ParentId.Value)?.UserId)?.UserName ?? "Unknown User",
+                        PostDescription = originalPosts.FirstOrDefault(op => op.Id == p.ParentId.Value)?.PostDescription,
+                        Media = originalPosts.FirstOrDefault(op => op.Id == p.ParentId.Value)?.Media
+                    } : null
                 })
+                .OrderByDescending(x => x.DatePosted)
                 .ToList();
 
-            // Step 5: Prepare response
             response.StatusCode = 200;
             response.Message = "Got posts successfully";
             response.Result = getPost;
@@ -321,14 +359,17 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
         public async Task<ResponseData<bool>> ReshareAsync(ReshareRequestModel request, CancellationToken cancellation)
         {
             var response = new ResponseData<bool>();
-            var orignalPost = await _context.PostedContent.Where(x => x.Id == request.ParentId).FirstOrDefaultAsync();
+            var orignalPost = await _context.PostedContent
+                .Where(x => x.Id == request.ParentId)
+                .FirstOrDefaultAsync();
+
             if (orignalPost != null)
             {
                 var reshare = new PostedContent();
-                reshare.UserId = orignalPost.UserId;
+                reshare.UserId = request.SharedBy; // Person who reshared
                 reshare.PostDescription = orignalPost.PostDescription;
                 reshare.MediaUrl = orignalPost.MediaUrl;
-                reshare.DatePosted = orignalPost.DatePosted;
+                reshare.DatePosted = DateTime.Now;
                 reshare.IsPublic = true;
                 reshare.IsPrivate = false;
                 reshare.IsSubscribed = false;
@@ -350,7 +391,7 @@ namespace ContentCreator.Infrastructure.Persistence.Repositories
                 response.Message = "Original post not found.";
                 response.IsSuccess = false;
                 response.Result = false;
-            }              
+            }
             return response;
         }
     }

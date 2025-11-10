@@ -8,12 +8,69 @@
             url: "https://localhost:7134/api/Content/GetPost?userId=" + userId,
             type: "GET",
             success: function (response) {
+                console.log("API Response:", response); // Debug log
                 if (response.StatusCode === 200 && response.Result?.length > 0) {
                     var posts = response.Result;
                     for (var i = 0; i < posts.length; i++) {
                         var data = posts[i];
                         var isLiked = data.IsLiked === true;
-                        rawHtml += `
+
+                        if (data.IsReshared && data.OriginalPost) {
+                            // This is a reshared post - show nested cards
+                            rawHtml += `
+                        <div class="post-card" style="border: 1px solid #ddd; border-radius: 12px; margin: 15px 0; padding: 15px; background: white;">
+                            <!-- Reshare Header -->
+                            <div class="post-header" style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <img src="/image/app-avatar-default.png" alt="User" class="post-avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 12px;">
+                                <div>
+                                    <span class="post-username" style="font-weight: bold; font-size: 16px;">${data.UserName}</span>
+                                    <div style="font-size: 13px; color: #666; display: flex; align-items: center;">
+                                        <i class="fa-solid fa-retweet" style="color: #1d9bf0; margin-right: 6px;"></i>
+                                        Shared
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Original Post Card (nested inside) -->
+                            <div class="original-post-container" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; background: #fafafa; margin: 10px 0;">
+                                <!-- Original Poster Header -->
+                                <div class="post-header" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <img src="/image/app-avatar-default.png" alt="User" class="post-avatar" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
+                                    <span class="post-username" style="font-weight: 500; font-size: 14px;">${data.OriginalPost.UserName}</span>
+                                </div>
+
+                                <!-- Original Post Description -->
+                                <div class="post-caption" style="font-size: 14px; color: #333; margin-bottom: ${data.OriginalPost.Media ? '10px' : '0'};">
+                                    ${data.OriginalPost.PostDescription || ""}
+                                </div>
+
+                                <!-- Original Post Media -->
+                                <div class="post-media">
+                                    ${data.OriginalPost.Media ? `
+                                        ${data.OriginalPost.Media.toLowerCase().endsWith('.mp4') || data.OriginalPost.Media.toLowerCase().endsWith('.mov') || data.OriginalPost.Media.toLowerCase().endsWith('.avi') ?
+                                        `<video controls style="max-width: 100%; border-radius: 6px;">
+                                                <source src="${data.OriginalPost.Media}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>`
+                                        :
+                                        `<img src="${data.OriginalPost.Media}" alt="Post Image" style="max-width: 100%; border-radius: 6px; display: block;"
+                                                 onerror="this.style.display='none';">`
+                                    }
+                                    ` : ""}
+                                </div>
+                            </div>
+
+                            <!-- Post Actions for the reshared post -->
+                            <div class="post-actions" style="display: flex; gap: 20px; padding: 10px 0; border-top: 1px solid #eee; margin-top: 10px;">
+                                <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart postLikes" data-postid="${data.PostId}" style="cursor:pointer; color:${isLiked ? "red" : ""}; font-size: 18px;"></i>
+                                <span class="like-count" style="font-size: 14px;">${data.LikeCount || 0}</span>
+                                <i class="fa-regular fa-comment postComment" data-postid="${data.PostId}" style="cursor:pointer; font-size: 18px;"></i>
+                                <i class="fa-regular fa-paper-plane re-share" data-postid="${data.PostId}" style="cursor:pointer; font-size: 18px;"></i>
+                            </div>
+                        </div>`;
+                        } else {
+                            // This is an original post
+                            rawHtml += `
                         <div class="post-card">
                             <div class="post-header">
                                 <img src="/image/app-avatar-default.png" alt="User" class="post-avatar">
@@ -25,24 +82,26 @@
                             </div>
 
                             <div class="post-media">
-                                ${data.Media
-                                ? `
-                                    <img src="${data.Media}" alt="Post Image" class="post-image"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                    <video controls preload="metadata" class="post-video" style="display:none;">
-                                        <source src="${data.Media}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>`
-                                : ""
-                            }
+                                ${data.Media ? `
+                                    ${data.Media.toLowerCase().endsWith('.mp4') || data.Media.toLowerCase().endsWith('.mov') || data.Media.toLowerCase().endsWith('.avi') ?
+                                        `<video controls style="max-width: 100%; border-radius: 6px;">
+                                            <source src="${data.Media}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>`
+                                        :
+                                        `<img src="${data.Media}" alt="Post Image" class="post-image"
+                                             onerror="this.style.display='none';">`
+                                    }
+                                ` : ""}
                             </div>
                             <div class="post-actions">
-                                <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart postLikes" data-postid="${data.PostId}" style="cursor:pointer;; color:${isLiked ? "red" : ""};"></i>
+                                <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart postLikes" data-postid="${data.PostId}" style="cursor:pointer; color:${isLiked ? "red" : ""};"></i>
                                 <span class="like-count">${data.LikeCount || 0}</span>
                                 <i class="fa-regular fa-comment postComment" data-postid="${data.PostId}" style="cursor:pointer;"></i>
-                                <i class="fa-regular fa-paper-plane re-share"></i>
+                                <i class="fa-regular fa-paper-plane re-share" data-postid="${data.PostId}"></i>
                             </div>
                         </div>`;
+                        }
                     }
                     $("#postSection").html(rawHtml);
                 } else {
@@ -334,10 +393,10 @@
             }
         });
     }
+
     $(document).on("click", ".re-share", function () {
         const userId = localStorage.getItem("UserId");
-        const parentCard = $(this).closest(".post-card");
-        const parentId = parentCard.find(".postLikes").data("postid");
+        const parentId = $(this).data("postid");
 
         var formData = new FormData();
         formData.append("SharedBy", userId);
@@ -352,18 +411,16 @@
             success: function (res) {
                 if (res.isSuccess || res.StatusCode == 200) {
                     Swal.fire("Success", "Post reshared successfully!", "success");
-
+                    // Refresh the posts to show the reshared post
+                    GetPost();
                 } else {
                     Swal.fire("Error", res.message || "Failed to reshare post", "error");
                 }
             },
             error: function (xhr, status, error) {
                 console.error("API Error:", status, error);
-                console.error("Response text:", xhr.responseText);
                 Swal.fire("Error", "Failed to reshare post", "error");
             }
-        }).done(function () {
-            console.log("AJAX request sent for resharing!");
         });
     });
 });
